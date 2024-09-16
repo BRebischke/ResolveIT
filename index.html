@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketing System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Ticketing System</h1>
+        
+        <!-- Create Ticket Form -->
+        <div class="ticket-form">
+            <h2>Create a New Ticket</h2>
+            <form id="ticketForm">
+                <input type="text" id="ticketDesc" placeholder="Enter ticket description" required>
+                <input type="text" id="ticketUser" placeholder="Enter your name" required>
+                <button type="submit">Create Ticket</button>
+            </form>
+        </div>
+
+        <!-- Ticket List -->
+        <div class="ticket-list">
+            <h2>Tickets</h2>
+            <ul id="ticketContainer"></ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
