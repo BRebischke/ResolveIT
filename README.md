@@ -19,8 +19,6 @@ Once you’ve set up your app.js file, you need to run the server to handle requ
 
 In your terminal, navigate to the folder where you created the app.js file, and run:
 
-bash
-
 node app.js
 
 If everything is set up correctly, you should see:
