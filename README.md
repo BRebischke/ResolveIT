@@ -10,6 +10,7 @@ You will be using Node.js with some additional packages to handle the database i
 Run the following commands to install Node.js and the required packages:
 
 npm init -y
+
 npm install express sqlite3 body-parser cors
 
 # 2. Run the Node.js Server
