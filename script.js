@@ -1,46 +1,66 @@
-let tickets = [
-    { id: 1, description: 'Issue with login', createdBy: 'User A', status: 'open', priority: 'High' },
-    { id: 2, description: 'Bug in checkout', createdBy: 'User B', status: 'inProgress', priority: 'Medium' },
-    { id: 3, description: 'Feature request: Dark mode', createdBy: 'User C', status: 'resolved', priority: 'Low' }
-];
+// Fetch and display companies in the company dropdown for adding users
+function fetchCompanies() {
+    fetch('http://localhost:5000/companies')
+        .then(response => response.json())
+        .then(companies => {
+            const companyDropdown = document.getElementById('companySelect');
+            companyDropdown.innerHTML = '<option value="">Select Company</option>'; // Clear existing options
 
-// Render tickets
-function renderTickets(ticketList) {
-    const ticketContainer = document.getElementById('ticketContainer');
-    ticketContainer.innerHTML = '';
-
-    ticketList.forEach(ticket => {
-        const ticketItem = document.createElement('li');
-        ticketItem.innerHTML = `
-            <span>${ticket.description} (Priority: ${ticket.priority})</span>
-            <span class="status ${ticket.status}">${ticket.status}</span>
-        `;
-        ticketItem.onclick = () => viewTicketDetails(ticket);
-        ticketContainer.appendChild(ticketItem);
-    });
+            companies.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company.id;
+                option.innerText = company.name;
+                companyDropdown.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching companies:', error);
+        });
 }
 
-// Filter tickets by status
-function filterTickets(status) {
-    if (status === 'all') {
-        renderTickets(tickets);
-    } else {
-        const filtered = tickets.filter(ticket => ticket.status === status);
-        renderTickets(filtered);
-    }
-}
+// Add new company
+document.getElementById('addCompanyForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const companyName = document.getElementById('companyName').value;
+    const companyAddress = document.getElementById('companyAddress').value;
 
-// View ticket details
-function viewTicketDetails(ticket) {
-    const ticketDetails = document.getElementById('ticketDetails');
-    ticketDetails.innerHTML = `
-        <p><strong>ID:</strong> ${ticket.id}</p>
-        <p><strong>Description:</strong> ${ticket.description}</p>
-        <p><strong>Created By:</strong> ${ticket.createdBy}</p>
-        <p><strong>Status:</strong> ${ticket.status}</p>
-        <p><strong>Priority:</strong> ${ticket.priority}</p>
-    `;
-}
+    const companyData = { name: companyName, address: companyAddress };
 
-// Initial render
-renderTickets(tickets);
+    fetch('http://localhost:5000/companies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(companyData)
+    })
+    .then(response => response.json())
+    .then(result => {
+        alert('Company added successfully');
+        document.getElementById('addCompanyForm').reset();
+        fetchCompanies(); // Refresh the company dropdown for users
+    })
+    .catch(error => console.error('Error adding company:', error));
+});
+
+// Add new user (customer) to a company
+document.getElementById('addUserForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const companyId = document.getElementById('companySelect').value;
+    const userName = document.getElementById('userName').value;
+    const userEmail = document.getElementById('userEmail').value;
+
+    const userData = { name: userName, email: userEmail, company_id: companyId };
+
+    fetch('http://localhost:5000/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(result => {
+        alert('User added successfully');
+        document.getElementById('addUserForm').reset();
+    })
+    .catch(error => console.error('Error adding user:', error));
+});
+
+// Call fetchCompanies on page load to populate the company dropdown
+fetchCompanies();

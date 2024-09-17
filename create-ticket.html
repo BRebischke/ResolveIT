@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Ticket</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Create New Ticket</h1>
+    </div>
+
+    <div class="create-ticket-form">
+        <!-- Ticket Summary -->
+        <h2>Summary</h2>
+        <input type="text" placeholder="Enter Ticket Summary" required>
+
+        <!-- Company Section -->
+        <h3>Company</h3>
+        <label for="companySelect">Company</label>
+        <select id="companySelect">
+            <option value="">Select a Company</option>
+        </select>
+
+        <label for="contactSelect">Contact</label>
+        <select id="contactSelect">
+            <option value="">Select a Contact</option>
+        </select>
+
+        <input type="text" placeholder="Address 1">
+        <input type="text" placeholder="Address 2">
+        <input type="text" placeholder="City">
+        <input type="text" placeholder="State">
+        <input type="text" placeholder="ZIP">
+        <input type="text" placeholder="Country">
+
+        <!-- Ticket Information Section -->
+        <h3>Ticket</h3>
+        <label for="boardSelect">Board</label>
+        <select id="boardSelect">
+            <option value="">Select a Board</option>
+        </select>
+
+        <label for="statusSelect">Status</label>
+        <select id="statusSelect">
+            <option value="new">New</option>
+            <option value="inProgress">In Progress</option>
+            <option value="resolved">Resolved</option>
+        </select>
+
+        <label for="prioritySelect">Priority</label>
+        <select id="prioritySelect">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+
+        <!-- Initial Description Section -->
+        <h3>Initial Description</h3>
+        <textarea placeholder="Enter Initial Description"></textarea>
+
+        <!-- Save Ticket Button -->
+        <button onclick="saveTicket()">Save Ticket</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
