@@ -3,53 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticketing Dashboard</title>
+    <title>ResolveIT</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="header">
-        <h1>Ticket Dashboard</h1>
+        <h1>My Tickets</h1>
 
         <!-- Navigation Bar -->
         <div class="nav-bar">
-            <button onclick="openCreateTicketPage()"><i class="fas fa-plus"></i> New Ticket</button>
-            <button><i class="fas fa-history"></i> Recent</button>
+				<div class="dropdown">
+					<button class="dropbtn" onclick="toggleDropdown()"><i class="fas fa-plus"></i> New</button>
+				<div class="dropdown-content" id="dropdownContent">
+					<a href="create-ticket.html" onclick="showNewTicketForm()">New Ticket</a>
+					<a href="#" onclick="showNewCompanyForm()">New Company</a>
+					<a href="#" onclick="showNewUserForm()">New User</a>
+    </div>
+</div>
+
             <button><i class="fas fa-calendar"></i> Calendar</button>
-            <button><i class="fas fa-clock"></i> My Time Sheet</button>
-            <button><i class="fas fa-comments"></i> Chat with Support</button>
-            <button><i class="fas fa-question-circle"></i> Help Center</button>
-            <button><i class="fas fa-cogs"></i> ITBoost</button>
         </div>
     </div>
 
     <div class="main">
 
-        <!-- Add Company Section -->
-        <div class="add-company">
-            <h2>Add Company</h2>
-            <form id="addCompanyForm">
-                <input type="text" id="companyName" placeholder="Company Name" required>
-                <input type="text" id="companyAddress" placeholder="Company Address">
-                <button type="submit">Add Company</button>
-            </form>
-        </div>
-
-        <!-- Add User Section -->
-        <div class="add-user">
-            <h2>Add User to Company</h2>
-            <form id="addUserForm">
-                <select id="companySelect" required>
-                    <option value="">Select Company</option>
-                </select>
-                <input type="text" id="userName" placeholder="User Name" required>
-                <input type="email" id="userEmail" placeholder="User Email" required>
-                <button type="submit">Add User</button>
-            </form>
-        </div>
-
         <!-- Ticket List Section -->
         <div class="ticket-list">
-            <h2>Tickets</h2>
+            <h2>My List</h2>
             <div class="filters">
                 <button onclick="filterTickets('all')">All</button>
                 <button onclick="filterTickets('open')">Open</button>

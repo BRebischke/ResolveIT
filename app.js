@@ -2,6 +2,7 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const bcrypt = require('bcrypt'); // For hashing passwords
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,6 +17,47 @@ const db = new sqlite3.Database('./ticketing_system.db', (err) => {
     }
 });
 
+// Route for login
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    const sql = 'SELECT * FROM users WHERE username = ?';
+    db.get(sql, [username], (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        // Compare hashed password with the one stored in the database
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err) {
+                return res.status(500).json({ error: 'Password comparison error' });
+            }
+            if (isMatch) {
+                // Password matches, proceed with login
+                res.json({ message: 'Login successful', userId: user.id });
+            } else {
+                // Password does not match
+                res.status(401).json({ error: 'Invalid username or password' });
+            }
+        });
+    });
+});
+
+// Define the GET /tickets route
+app.get('/tickets', (req, res) => {
+    const sql = 'SELECT * FROM tickets';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            res.status(400).json({ "error": err.message });
+            return;
+        }
+        res.json(rows);
+    });
+});
+
 // Get all companies
 app.get('/companies', (req, res) => {
     const sql = 'SELECT * FROM companies';
@@ -28,31 +70,44 @@ app.get('/companies', (req, res) => {
     });
 });
 
-// Add a new company
-app.post('/companies', (req, res) => {
-    const { name, address } = req.body;
-    const sql = 'INSERT INTO companies (name, address) VALUES (?, ?)';
-    db.run(sql, [name, address], function (err) {
+
+// Get customers for a specific company
+app.get('/companies/:companyId/customers', (req, res) => {
+    const { companyId } = req.params;
+    const sql = 'SELECT * FROM customers WHERE company_id = ?';
+    db.all(sql, [companyId], (err, rows) => {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
         }
-        res.json({ message: 'Company added successfully', companyId: this.lastID });
+        res.json(rows);
     });
 });
 
-// Add a new customer (user) to a company
-app.post('/customers', (req, res) => {
-    const { name, email, company_id } = req.body;
-    const sql = 'INSERT INTO customers (name, email, company_id) VALUES (?, ?, ?)';
-    db.run(sql, [name, email, company_id], function (err) {
+
+app.get('/companies', (req, res) => {
+    const sql = 'SELECT * FROM companies';
+    db.all(sql, [], (err, rows) => {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
         }
-        res.json({ message: 'Customer added successfully', customerId: this.lastID });
+        res.json(rows);
     });
 });
+
+app.get('/companies/:companyId/customers', (req, res) => {
+    const { companyId } = req.params;
+    const sql = 'SELECT * FROM customers WHERE company_id = ?';
+    db.all(sql, [companyId], (err, rows) => {
+        if (err) {
+            res.status(400).json({ "error": err.message });
+            return;
+        }
+        res.json(rows);
+    });
+});
+
 
 // Start server
 const PORT = 5000;
