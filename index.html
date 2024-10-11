@@ -31,14 +31,14 @@
         <div class="ticket-list">
             <h2>My List</h2>
             <div class="filters">
-                <button onclick="filterTickets('all')">All</button>
-                <button onclick="filterTickets('open')">Open</button>
-                <button onclick="filterTickets('inProgress')">In Progress</button>
-                <button onclick="filterTickets('resolved')">Resolved</button>
+                <button id="allButton" class="filter-button">All</button>
+                <button id="openButton" class="filter-button">Open</button>
+                <button id="inProgressButton" class="filter-button">In Progress</button>
+                <button id="resolvedButton" class="filter-button">Resolved</button>
             </div>
-            <ul id="ticketContainer"></ul>
+            <div id="ticketContainer"></div>
         </div>
-    </div>
+        
 
     <script src="script.js"></script>
 </body>

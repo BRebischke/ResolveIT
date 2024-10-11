@@ -3,67 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Ticket</title>
+    <title>Create New Ticket - ResolveIT</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Create New Ticket</h1>
+    <div class="new-ticket-container">
+        <h2>New Ticket</h2>
+        
+        <div class="form-section">
+            <h3>Company Information</h3>
+            <form id="ticketForm">
+                <div class="form-group">
+                    <label for="companySelect">Company:</label>
+                    <select id="companySelect" required>
+                        <option value="">Select Company</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="customerSelect">Contact:</label>
+                    <select id="customerSelect" required>
+                        <option value="">Select Contact</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" placeholder="Contact Email" disabled>
+                </div>
+            </form>
+        </div>
+
+        <div class="form-section">
+            <h3>Ticket Details</h3>
+            <div class="form-group">
+                <label for="ticketDesc">Description:</label>
+                <input type="text" id="ticketDesc" placeholder="Enter ticket description" required>
+            </div>
+            <div class="form-group">
+                <label for="ticketPriority">Priority:</label>
+                <select id="ticketPriority" required>
+                    <option value="">Select Priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ticketStatus">Status:</label>
+                <select id="ticketStatus" required>
+                    <option value="">Select Status</option>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Initial Description</h3>
+            <div class="form-group">
+                <label for="initialDescription">Notes:</label>
+                <textarea id="initialDescription" placeholder="Enter initial description..."></textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="create-ticket-btn">Create Ticket</button>
     </div>
 
-    <div class="create-ticket-form">
-        <!-- Ticket Summary -->
-        <h2>Summary</h2>
-        <input type="text" placeholder="Enter Ticket Summary" required>
-
-        <!-- Company Section -->
-        <h3>Company</h3>
-        <label for="companySelect">Company</label>
-        <select id="companySelect">
-            <option value="">Select a Company</option>
-        </select>
-
-        <label for="contactSelect">Contact</label>
-        <select id="contactSelect">
-            <option value="">Select a Contact</option>
-        </select>
-
-        <input type="text" placeholder="Address 1">
-        <input type="text" placeholder="Address 2">
-        <input type="text" placeholder="City">
-        <input type="text" placeholder="State">
-        <input type="text" placeholder="ZIP">
-        <input type="text" placeholder="Country">
-
-        <!-- Ticket Information Section -->
-        <h3>Ticket</h3>
-        <label for="boardSelect">Board</label>
-        <select id="boardSelect">
-            <option value="">Select a Board</option>
-        </select>
-
-        <label for="statusSelect">Status</label>
-        <select id="statusSelect">
-            <option value="new">New</option>
-            <option value="inProgress">In Progress</option>
-            <option value="resolved">Resolved</option>
-        </select>
-
-        <label for="prioritySelect">Priority</label>
-        <select id="prioritySelect">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-        </select>
-
-        <!-- Initial Description Section -->
-        <h3>Initial Description</h3>
-        <textarea placeholder="Enter Initial Description"></textarea>
-
-        <!-- Save Ticket Button -->
-        <button onclick="saveTicket()">Save Ticket</button>
-    </div>
-
-    <script src="script.js"></script>
+    <script src="create-ticket.js"></script>
 </body>
 </html>

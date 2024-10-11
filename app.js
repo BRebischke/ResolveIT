@@ -2,11 +2,14 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const bcrypt = require('bcrypt'); // For hashing passwords
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Connect to SQLite database
 const db = new sqlite3.Database('./ticketing_system.db', (err) => {
@@ -17,36 +20,12 @@ const db = new sqlite3.Database('./ticketing_system.db', (err) => {
     }
 });
 
-// Route for login
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    
-    const sql = 'SELECT * FROM users WHERE username = ?';
-    db.get(sql, [username], (err, user) => {
-        if (err) {
-            return res.status(500).json({ error: 'Database error' });
-        }
-        if (!user) {
-            return res.status(401).json({ error: 'Invalid username or password' });
-        }
-
-        // Compare hashed password with the one stored in the database
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-                return res.status(500).json({ error: 'Password comparison error' });
-            }
-            if (isMatch) {
-                // Password matches, proceed with login
-                res.json({ message: 'Login successful', userId: user.id });
-            } else {
-                // Password does not match
-                res.status(401).json({ error: 'Invalid username or password' });
-            }
-        });
-    });
+// Root route to serve the index.html file
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Define the GET /tickets route
+// Get all tickets
 app.get('/tickets', (req, res) => {
     const sql = 'SELECT * FROM tickets';
     db.all(sql, [], (err, rows) => {
@@ -70,7 +49,6 @@ app.get('/companies', (req, res) => {
     });
 });
 
-
 // Get customers for a specific company
 app.get('/companies/:companyId/customers', (req, res) => {
     const { companyId } = req.params;
@@ -84,33 +62,51 @@ app.get('/companies/:companyId/customers', (req, res) => {
     });
 });
 
-
-app.get('/companies', (req, res) => {
-    const sql = 'SELECT * FROM companies';
-    db.all(sql, [], (err, rows) => {
+// Add a new ticket
+app.post('/tickets', (req, res) => {
+    const { description, companyId, customerId, status, priority } = req.body;
+    const sql = 'INSERT INTO tickets (description, status, priority, customer_id, company_id) VALUES (?, ?, ?, ?, ?)';
+    const params = [description, status, priority, customerId, companyId];
+    db.run(sql, params, function(err) {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
         }
-        res.json(rows);
+        res.json({ message: 'Ticket created successfully', ticketId: this.lastID });
     });
 });
 
-app.get('/companies/:companyId/customers', (req, res) => {
-    const { companyId } = req.params;
-    const sql = 'SELECT * FROM customers WHERE company_id = ?';
-    db.all(sql, [companyId], (err, rows) => {
+// Add a new company
+app.post('/companies', (req, res) => {
+    const { name, address } = req.body;
+    const sql = 'INSERT INTO companies (name, address) VALUES (?, ?)';
+    const params = [name, address];
+    db.run(sql, params, function(err) {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
         }
-        res.json(rows);
+        res.json({ message: 'Company added successfully', companyId: this.lastID });
     });
 });
 
+
+// Add a new customer
+app.post('/customers', (req, res) => {
+    const { name, email, company_id } = req.body;
+    const sql = 'INSERT INTO customers (name, email, company_id) VALUES (?, ?, ?)';
+    const params = [name, email, company_id];
+    db.run(sql, params, function(err) {
+        if (err) {
+            res.status(400).json({ "error": err.message });
+            return;
+        }
+        res.json({ message: 'Customer added successfully', customerId: this.lastID });
+    });
+});
 
 // Start server
 const PORT = 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
