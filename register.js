@@ -1,21 +1,22 @@
-document.getElementById('loginForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    
+document.getElementById('registerForm').addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevent default form submission
+
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    const loginData = { username, password };
+    const registerData = { username, password };
 
-    fetch('http://localhost:5000/login', {
+    fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData)
+        body: JSON.stringify(registerData)
     })
     .then(response => response.json())
     .then(result => {
-        if (result.message === 'Login successful') {
-            // Redirect to main dashboard or save authentication state
-            window.location.href = 'ticketScreen.html'; // Redirect to dashboard
+        if (result.message) {
+            alert(result.message); // Show success message
+            window.location.href = 'ticketScreen.html';
+            
         } else {
             // Show error message
             document.getElementById('errorMessage').innerText = result.error;

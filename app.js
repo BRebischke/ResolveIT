@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-
+const bcrypt = require('bcrypt');
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
@@ -22,18 +22,52 @@ const db = new sqlite3.Database('./ticketing_system.db', (err) => {
 
 // Root route to serve the index.html file
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+// Login endpoint
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
 
-// Get all tickets
-app.get('/tickets', (req, res) => {
-    const sql = 'SELECT * FROM tickets';
-    db.all(sql, [], (err, rows) => {
+    // SQL query to check for user
+    const query = 'SELECT * FROM users WHERE username = ?';
+    db.get(query, [username], (err, user) => {
         if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
+            return res.status(500).json({ error: 'Database error' });
         }
-        res.json(rows);
+
+        if (user && bcrypt.compareSync(password, user.password)) {
+            // User found and password matched
+            res.json({ message: 'Login successful' });
+        } else {
+            // Invalid credentials
+            res.status(401).json({ error: 'Invalid username or password' });
+        }
+    });
+});
+//add new user to database
+app.post('/register', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    // Check if username already exists
+    const checkUserQuery = 'SELECT * FROM users WHERE username = ?';
+    db.get(checkUserQuery, [username], (err, user) => {
+        
+
+        if (user) {
+            return res.status(409).json({ error: 'Username already taken' });
+        } else {
+            // Hash the password before storing it
+            const hashedPassword = bcrypt.hashSync(password, 10);
+            const insertUserQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
+            db.run(insertUserQuery, [username, hashedPassword], function (err) {
+                
+                res.json({ message: 'Account created successfully', userId: this.lastID });
+            });
+        }
     });
 });
 
