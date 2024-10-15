@@ -3,7 +3,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-
+    
     const loginData = { username, password };
 
     fetch('http://localhost:5000/login', {
@@ -22,4 +22,5 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
         }
     })
     .catch(error => console.error('Error:', error));
+   
 });
