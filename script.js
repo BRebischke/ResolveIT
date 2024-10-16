@@ -31,6 +31,46 @@ function renderTickets(ticketList) {
     });
 }
 
+function fetchAssignedTickets(userId) {
+    fetch(`http://localhost:5000/users/${userId}/tickets`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch tickets');
+            }
+            return response.json();
+        })
+        .then(tickets => {
+            const ticketContainer = document.getElementById('ticketContainer');
+            ticketContainer.innerHTML = ''; // Clear previous tickets
+
+            if (tickets.length === 0) {
+                ticketContainer.innerHTML = '<p>No tickets assigned to you.</p>';
+            } else {
+                tickets.forEach(ticket => {
+                    const ticketItem = document.createElement('div');
+                    ticketItem.className = 'ticket-item';
+                    ticketItem.innerHTML = `
+                        <h4>${ticket.description}</h4>
+                        <p>Status: ${ticket.status}</p>
+                        <p>Priority: ${ticket.priority}</p>
+                    `;
+                    ticketContainer.appendChild(ticketItem);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching tickets:', error);
+            displayError('Unable to load tickets. Please try again later.');
+        });
+}
+
+// Assuming you have a function that gets the logged-in user's ID
+const loggedInUserId = getLoggedInUserId();
+if (loggedInUserId) {
+    fetchAssignedTickets(loggedInUserId);
+}
+
+
 // Filter tickets based on status
 function filterTickets(status) {
     console.log('Filtering tickets with status:', status);  // Debug: Check selected status
@@ -195,6 +235,34 @@ window.onclick = function(event) {
         }
     }
 };
+
+function login(username, password) {
+    fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Save userId to local storage or session
+            localStorage.setItem('userId', data.userId);
+            // Redirect to the dashboard
+            window.location.href = 'dashboard.html';
+        } else {
+            displayError('Invalid username or password');
+        }
+    })
+    .catch(error => {
+        console.error('Error logging in:', error);
+        displayError('Unable to log in. Please try again later.');
+    });
+}
+
+function getLoggedInUserId() {
+    return localStorage.getItem('userId');
+}
+
 
 // Event listeners for filter buttons
 document.getElementById('allButton').addEventListener('click', () => filterTickets('all'));

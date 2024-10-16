@@ -44,6 +44,21 @@ app.post('/login', (req, res) => {
         }
     });
 });
+
+app.post('/tickets', (req, res) => {
+    const { description, companyId, customerId, status, priority, assignedUserId } = req.body;
+    const sql = 'INSERT INTO tickets (description, company_id, customer_id, status, priority, assigned_user_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const params = [description, companyId, customerId, status, priority, assignedUserId];
+    db.run(sql, params, function(err) {
+        if (err) {
+            res.status(400).json({ "error": err.message });
+            return;
+        }
+        res.json({ message: 'Ticket created successfully', ticketId: this.lastID });
+    });
+});
+
+
 //add new user to database
 app.post('/register', (req, res) => {
     const { username, password } = req.body;
@@ -71,6 +86,33 @@ app.post('/register', (req, res) => {
     });
 });
 
+// Get tickets assigned to a specific user
+app.get('/users/:userId/tickets', (req, res) => {
+    const userId = req.params.userId;
+    const sql = 'SELECT * FROM tickets WHERE assignedUserId = ?';
+    db.all(sql, [userId], (err, rows) => {
+        if (err) {
+            res.status(400).json({ "error": err.message });
+            return;
+        }
+        res.json(rows);
+    });
+});
+
+
+// Get all users
+app.get('/users', (req, res) => {
+    const sql = 'SELECT * FROM users';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            res.status(400).json({ "error": err.message });
+            return;
+        }
+        res.json(rows);
+    });
+});
+
+
 // Get all companies
 app.get('/companies', (req, res) => {
     const sql = 'SELECT * FROM companies';
@@ -86,7 +128,7 @@ app.get('/companies', (req, res) => {
 // Get customers for a specific company
 app.get('/companies/:companyId/customers', (req, res) => {
     const { companyId } = req.params;
-    const sql = 'SELECT * FROM customers WHERE company_id = ?';
+    const sql = 'SELECT id, name, email, phone FROM customers WHERE company_id = ?';
     db.all(sql, [companyId], (err, rows) => {
         if (err) {
             res.status(400).json({ "error": err.message });
