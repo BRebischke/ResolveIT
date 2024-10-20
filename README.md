@@ -9,9 +9,9 @@ You will be using Node.js with some additional packages to handle the database i
 
 Run the following commands to install Node.js and the required packages:
 
-npm init -y
+`npm init -y`
 
-npm install express sqlite3 body-parser cors
+`npm install express sqlite3 body-parser cors`
 
 # 2. Run the Node.js Server
 
@@ -19,7 +19,7 @@ Once you’ve set up your app.js file, you need to run the server to handle requ
 
 In your terminal, navigate to the folder where you created the app.js file, and run:
 
-'node app.js'
+`node app.js`
 
 If everything is set up correctly, you should see:
 
