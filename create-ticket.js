@@ -46,25 +46,25 @@ document.addEventListener('DOMContentLoaded', function() {
         ticketForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const description = document.getElementById('ticketDesc').value;
+            const summary = document.getElementById('ticketSummary').value;
             const companyId = document.getElementById('companySelect').value;
             const customerId = document.getElementById('customerSelect').value;
             const priority = document.getElementById('ticketPriority').value;
             const status = document.getElementById('ticketStatus').value;
-            const assignedUserId = document.getElementById('userSelect').value;
+            const assigned_user_id = document.getElementById('userSelect').value;
 
-            if (!companyId || !customerId || !assignedUserId) {
+            if (!companyId || !customerId || !assigned_user_id) {
                 displayError('Please select a company, customer, and user');
                 return;
             }
 
             const ticketData = {
-                description,
+                summary,
                 companyId,
                 customerId,
                 status,
                 priority,
-                assignedUserId
+                assigned_user_id
             };
 
             fetch('http://localhost:5000/tickets', {

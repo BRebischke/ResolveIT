@@ -16,8 +16,9 @@
 					<button class="dropbtn" onclick="toggleDropdown()"><i class="fas fa-plus"></i> New</button>
 				<div class="dropdown-content" id="dropdownContent">
 					<a href="create-ticket.html" onclick="showNewTicketForm()">New Ticket</a>
-					<a href="#" onclick="showNewCompanyForm()">New Company</a>
-					<a href="#" onclick="showNewUserForm()">New User</a>
+					<a href="new-company.html" onclick="showNewCompanyForm()">New Company</a>
+					<a href="new-user.html" onclick="showNewUserForm()">New User</a>
+                    <a href="new-system-user.html" onclick="showNewSystemUserForm()">New System User</a>
     </div>
 </div>
 
@@ -33,14 +34,17 @@
             <h2>My List</h2>
             <div class="filters">
                 <button id="allButton" class="filter-button">All</button>
-                <button id="openButton" class="filter-button">Open</button>
+                <button id="newButton" class="filter-button">New</button>
+                <button id="assignedButton" class="filter-button">Assigned</button>
                 <button id="inProgressButton" class="filter-button">In Progress</button>
-                <button id="resolvedButton" class="filter-button">Resolved</button>
+                <button id="waitingButton" class="filter-button">Waiting</button>
+                <button id="clientUpdatedButton" class="filter-button">Client Updated</button>
+                <button id="completeButton" class="filter-button">Complete</button>
             </div>
             <div id="ticketContainer"></div>
         </div>
         
 
-    <script src="script.js"></script>
+    <script src="ticket-screen.js"></script>
 </body>
 </html>
