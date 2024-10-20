@@ -86,16 +86,32 @@ app.post('/register', (req, res) => {
     });
 });
 
-// Get tickets assigned to a specific user
-app.get('/users/:userId/tickets', (req, res) => {
-    const userId = req.params.userId;
-    const sql = 'SELECT * FROM tickets WHERE assignedUserId = ?';
-    db.all(sql, [userId], (err, rows) => {
+// Endpoint to get all tickets
+app.get('/tickets', (req, res) => {
+    const sql = 'SELECT * FROM tickets';
+    db.all(sql, [], (err, rows) => {
         if (err) {
-            res.status(400).json({ "error": err.message });
+            res.status(400).json({ error: err.message });
             return;
         }
-        res.json(rows);
+        res.json(rows); // Return all tickets
+    });
+});
+
+// Get ticket details by ID
+app.get('/tickets/:ticketId', (req, res) => {
+    const ticketId = req.params.ticketId;
+    const sql = 'SELECT * FROM tickets WHERE id = ?';
+    db.get(sql, [ticketId], (err, row) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        if (!row) {
+            res.status(404).json({ error: 'Ticket not found' });
+            return;
+        }
+        res.json(row);
     });
 });
 
@@ -152,34 +168,45 @@ app.post('/tickets', (req, res) => {
     });
 });
 
-// Add a new company
+// Add new company
 app.post('/companies', (req, res) => {
     const { name, address } = req.body;
     const sql = 'INSERT INTO companies (name, address) VALUES (?, ?)';
-    const params = [name, address];
-    db.run(sql, params, function(err) {
+    db.run(sql, [name, address], function(err) {
         if (err) {
-            res.status(400).json({ "error": err.message });
+            res.status(400).json({ error: err.message });
             return;
         }
-        res.json({ message: 'Company added successfully', companyId: this.lastID });
+        res.json({ message: 'Company created successfully', companyId: this.lastID });
     });
 });
 
-
-// Add a new customer
-app.post('/customers', (req, res) => {
-    const { name, email, company_id } = req.body;
-    const sql = 'INSERT INTO customers (name, email, company_id) VALUES (?, ?, ?)';
-    const params = [name, email, company_id];
-    db.run(sql, params, function(err) {
+// Add new user
+app.post('/users', (req, res) => {
+    const { company_id, name, email } = req.body;
+    const sql = 'INSERT INTO clients (company_id, name, email) VALUES (?, ?, ?)';
+    db.run(sql, [company_id, name, email], function(err) {
         if (err) {
-            res.status(400).json({ "error": err.message });
+            res.status(400).json({ error: err.message });
             return;
         }
-        res.json({ message: 'Customer added successfully', customerId: this.lastID });
+        res.json({ message: 'User created successfully', userId: this.lastID });
     });
 });
+
+// Add new system user (admin or technician)
+app.post('/system-users', (req, res) => {
+    const { username, email, role } = req.body;
+    const sql = 'INSERT INTO system_users (username, email, role) VALUES (?, ?, ?)';
+    db.run(sql, [username, email, role], function(err) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+        res.json({ message: 'System user created successfully', userId: this.lastID });
+    });
+});
+
 
 // Start server
 const PORT = 5000;
