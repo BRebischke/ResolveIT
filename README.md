@@ -13,7 +13,11 @@ Run the following commands to install Node.js and the required packages:
 
 `npm install express sqlite3 body-parser cors`
 
-# 2. Run the Node.js Server
+# 2. Download the Zip File for all the code from the GitHub Repo, and then extract the contents to a dedicated spot.
+![image](https://github.com/user-attachments/assets/a96aa9ea-5f0c-4807-a559-f668a22ad025)
+
+
+# 3. Run the Node.js Server
 
 Once you’ve extracted the zip file, you need to run the server to handle requests from the frontend and interact with the database.
 
