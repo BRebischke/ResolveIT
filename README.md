@@ -15,9 +15,9 @@ Run the following commands to install Node.js and the required packages:
 
 # 2. Run the Node.js Server
 
-Once you’ve set up your app.js file, you need to run the server to handle requests from the frontend and interact with the database.
+Once you’ve extracted the zip file, you need to run the server to handle requests from the frontend and interact with the database.
 
-In your terminal, navigate to the folder where you created the app.js file, and run:
+In your terminal/command prompt, navigate to the folder where your app.js file is located, and run:
 
 `node app.js`
 
