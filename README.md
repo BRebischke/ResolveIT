@@ -29,3 +29,9 @@ If everything is set up correctly, you should see:
 
 Server is running on port 5000
 Connected to the SQLite database.
+
+# 4. Open the web page
+
+Lastly, go to a web browser, and in the address bar, search for:
+
+`localhost:5000`
