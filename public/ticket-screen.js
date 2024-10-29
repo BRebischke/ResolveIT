@@ -25,7 +25,7 @@ function sortTickets(tickets) {
     };
 
     return tickets.sort((a, b) => {
-            const statusOrderA = statusOrder[a.status] || 4; // Default to a higher value if not found
+            const statusOrderA = statusOrder[a.status] || 4; // Default to higher value if not found
             const statusOrderB = statusOrder[b.status] || 4;
 
             if (statusOrderA !== statusOrderB) {
