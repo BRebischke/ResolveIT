@@ -6,13 +6,52 @@ function getLoggedInUserId() {
     return localStorage.getItem('userId');
 }
 
+// Sort tickets based on status and priority then creation date
+function sortTickets(tickets) {
+    const priorityOrder = {
+        "High": 1,
+        "Medium": 2,
+        "Low": 3,
+    };
+
+    const statusOrder = {
+        "Open": 1,
+        "New": 1,
+        "Assigned": 1,
+        "In Progress": 1,
+        "On Hold": 2,
+        "Waiting": 2,
+        "Complete": 3,
+    };
+
+    return tickets.sort((a, b) => {
+            const statusOrderA = statusOrder[a.status] || 4; // Default to higher value if not found
+            const statusOrderB = statusOrder[b.status] || 4;
+
+            if (statusOrderA !== statusOrderB) {
+                return statusOrderA - statusOrderB; // Sort by status order
+            }
+
+            // Sort by priority using the priority order defined
+            const priorityOrderA = priorityOrder[a.priority]
+            const priorityOrderB = priorityOrder[b.priority]
+
+            if (priorityOrderA !== priorityOrderB) {
+                return priorityOrderA - priorityOrderB;
+            }
+
+            // Sort by created date (oldest first)
+            return new Date(a.createdDate) - new Date(b.createdDate);
+    });
+}
+
 // Fetch all tickets and store them globally
 function fetchTickets() {
     fetch('http://localhost:5000/tickets')
         .then(response => response.json())
         .then(tickets => {
             console.log('Fetched Tickets:', tickets);  // Debug
-            ticketsData = tickets;  // Store fetched tickets globally
+            ticketsData = sortTickets(tickets);  // Sort and store fetched tickets globally
             renderTickets(ticketsData);  // Render all tickets initially
         })
         .catch(error => console.error('Error fetching tickets:', error));
@@ -34,6 +73,7 @@ function fetchTicketsForUser(userId, status = null) {
         })
         .then(tickets => {
             console.log('Fetched User Tickets:', tickets); // Debug
+            ticketData = sortTickets(tickets);
             renderTickets(tickets);
         })
         .catch(error => {
