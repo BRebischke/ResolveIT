@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 companyId,
                 assignedUserId
             };
-            console.log(ticketData)
+            
             fetch('http://localhost:5000/tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
