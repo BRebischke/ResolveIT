@@ -46,9 +46,9 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/tickets', (req, res) => {
-    const { description, companyId, customerId, status, priority, assignedUserId } = req.body;
-    const sql = 'INSERT INTO tickets (description, company_id, customer_id, status, priority, assigned_user_id) VALUES (?, ?, ?, ?, ?, ?)';
-    const params = [description, companyId, customerId, status, priority, assignedUserId];
+    const { summary, status, priority, customerId, companyId, assignedUserId } = req.body;
+    const sql = 'INSERT INTO tickets (summary, status, priority, customer_id, company_id, assigned_user_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const params = [summary, status, priority, customerId, companyId, assignedUserId];
     db.run(sql, params, function(err) {
         if (err) {
             res.status(400).json({ "error": err.message });
@@ -154,19 +154,6 @@ app.get('/companies/:companyId/customers', (req, res) => {
     });
 });
 
-// Add a new ticket
-app.post('/tickets', (req, res) => {
-    const { description, companyId, customerId, status, priority } = req.body;
-    const sql = 'INSERT INTO tickets (description, status, priority, customer_id, company_id) VALUES (?, ?, ?, ?, ?)';
-    const params = [description, status, priority, customerId, companyId];
-    db.run(sql, params, function(err) {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({ message: 'Ticket created successfully', ticketId: this.lastID });
-    });
-});
 
 // Add new company
 app.post('/companies', (req, res) => {
