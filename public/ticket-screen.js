@@ -82,34 +82,32 @@ function fetchTicketsForUser(userId, status = null) {
         });
 }
 
+// Function to render tickets in a table
 function renderTickets(ticketList) {
     const ticketContainer = document.getElementById('ticketContainer');
-    if (!ticketContainer) {
-        console.error('Ticket container not found.');
-        return;
-    }
-    
     ticketContainer.innerHTML = ''; // Clear existing tickets
 
     if (ticketList.length === 0) {
-        ticketContainer.innerHTML = '<p>No tickets available.</p>';
+        ticketContainer.innerHTML = '<tr><td colspan="9">No tickets available.</td></tr>';
     } else {
         ticketList.forEach(ticket => {
-            const ticketItem = document.createElement('div');
-            ticketItem.className = 'ticket-item';
-            ticketItem.innerHTML = `
-                <h4>${ticket.summary}</h4>
-                <p>Status: ${ticket.status}</p>
-                <p>Priority: ${ticket.priority}</p>
+            const ticketRow = document.createElement('tr');
+            ticketRow.innerHTML = `
+                <td>${ticket.id}</td>
+                <td>${ticket.priority}</td>
+                <td>${ticket.age}</td>
+                <td>${ticket.company}</td>
+                <td>${ticket.status}</td>
+                <td>${ticket.description}</td>
+                <td>${ticket.contact}</td>
+                <td>${ticket.lastUpdated}</td>
+                <td>${ticket.owner}</td>
             `;
-            ticketItem.addEventListener('click', function() {
-                // Redirect to ticket-details.html with ticket ID as a query parameter
-                window.location.href = `ticket-details.html?ticketId=${ticket.id}`;
-            });
-            ticketContainer.appendChild(ticketItem);
+            ticketContainer.appendChild(ticketRow);
         });
     }
 }
+
 
 
 // Filter tickets by status from global ticketsData

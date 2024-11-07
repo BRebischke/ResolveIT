@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>My Tickets </h1>
+        <h1>ResolveIT </h1>
 
         <!-- Navigation Bar -->
         <div class="nav-bar">
@@ -22,6 +22,7 @@
     </div>
 </div>
 
+            <button onClick="location.href = 'ticketScreen.html';"><i class="fas fa-calendar"></i> My Tickets</button>
             <button><i class="fas fa-calendar"></i> Calendar</button>
             <button onClick="location.href = 'index.html';"><i class="fas fa-calendar"></i> Logout</button>
         </div>
@@ -29,7 +30,6 @@
 
     <div class="main">
 
-        <!-- Ticket List Section -->
         <div class="ticket-list">
             <h2>My List</h2>
             <div class="filters">
@@ -41,8 +41,26 @@
                 <button id="clientUpdatedButton" class="filter-button">Client Updated</button>
                 <button id="completeButton" class="filter-button">Complete</button>
             </div>
-            <div id="ticketContainer"></div>
+            <table id="ticketTable" class="ticket-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Priority</th>
+                        <th>Age</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Summary</th>
+                        <th>Contact</th>
+                        <th>Last Updated</th>
+                        <th>Ticket Owner</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketContainer">
+                    <!-- Tickets will be populated here -->
+                </tbody>
+            </table>
         </div>
+        
         
 
     <script src="ticket-screen.js"></script>

@@ -463,3 +463,26 @@ textarea {
 .dropdown:hover .dropbtn {
     background-color: #f4f4f4;
 }
+
+/* Ticket Table Styles */
+.ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+.ticket-table th, .ticket-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.ticket-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.ticket-table tr:hover {
+    background-color: #f1f1f1;
+}
