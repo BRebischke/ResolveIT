@@ -51,22 +51,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const customerId = document.getElementById('customerSelect').value;
             const priority = document.getElementById('ticketPriority').value;
             const status = document.getElementById('ticketStatus').value;
-            const assigned_user_id = document.getElementById('userSelect').value;
-
-            if (!companyId || !customerId || !assigned_user_id) {
+            const assignedUserId = document.getElementById('userSelect').value;
+            
+            if (!companyId || !customerId || !assignedUserId) {
                 displayError('Please select a company, customer, and user');
                 return;
             }
 
             const ticketData = {
                 summary,
-                companyId,
-                customerId,
                 status,
                 priority,
-                assigned_user_id
+                customerId,
+                companyId,
+                assignedUserId
             };
-
+            
             fetch('http://localhost:5000/tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearContactDetails();  // Clear email and phone fields
             })
             .catch(error => {
+                
                 console.error('Error adding ticket:', error);
                 displayError('Unable to create ticket. Please try again later.');
             });
