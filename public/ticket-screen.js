@@ -47,7 +47,7 @@ function sortTickets(tickets) {
 
 // Fetch all tickets and store them globally
 function fetchTickets() {
-    fetch('http://localhost:5000/tickets')
+    fetch('http://localhost:5001/tickets')
         .then(response => response.json())
         .then(tickets => {
             console.log('Fetched Tickets:', tickets);  // Debug
@@ -59,7 +59,7 @@ function fetchTickets() {
 
 // Fetch tickets assigned to a specific user, optionally filtered by status
 function fetchTicketsForUser(userId, status = null) {
-    let url = `http://localhost:5000/users/${userId}/tickets`;
+    let url = `http://localhost:5001/users/${userId}/tickets`;
     if (status) {
         url += `?status=${encodeURIComponent(status)}`;
     }
@@ -92,6 +92,7 @@ function renderTickets(ticketList) {
     } else {
         ticketList.forEach(ticket => {
             const ticketRow = document.createElement('tr');
+
             ticketRow.innerHTML = `
                 <td>${ticket.id}</td>
                 <td>${ticket.priority}</td>
@@ -103,12 +104,16 @@ function renderTickets(ticketList) {
                 <td>${ticket.lastUpdated}</td>
                 <td>${ticket.owner}</td>
             `;
+
+            // Add a click event to each row
+            ticketRow.addEventListener('click', () => {
+                 window.location.href = `ticket-details.html?ticketId=${ticket.id}`;
+            });
+
             ticketContainer.appendChild(ticketRow);
         });
     }
 }
-
-
 
 // Filter tickets by status from global ticketsData
 function filterTickets(status) {
