@@ -47,7 +47,7 @@ function sortTickets(tickets) {
 
 // Fetch all tickets and store them globally
 function fetchTickets() {
-    fetch('http://localhost:5001/tickets')
+    fetch('http://localhost:5000/tickets')
         .then(response => response.json())
         .then(tickets => {
             console.log('Fetched Tickets:', tickets);  // Debug
@@ -59,7 +59,7 @@ function fetchTickets() {
 
 // Fetch tickets assigned to a specific user, optionally filtered by status
 function fetchTicketsForUser(userId, status = null) {
-    let url = `http://localhost:5001/users/${userId}/tickets`;
+    let url = `http://localhost:5000/users/${userId}/tickets`;
     if (status) {
         url += `?status=${encodeURIComponent(status)}`;
     }
