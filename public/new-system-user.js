@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
 
         const systemUserName = document.getElementById('systemUserName').value;
-        const systemUserEmail = document.getElementById('systemUserEmail').value;
+        const systemPassword = document.getElementById('systemPassword').value;
         const systemUserRole = document.getElementById('systemUserRole').value;
 
         const systemUserData = {
             username: systemUserName,
-            email: systemUserEmail,
+            password: systemPassword,
             role: systemUserRole
         };
 
@@ -21,11 +21,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 throw new Error('Failed to create system user');
             }
+            
             return response.json();
         })
         .then(result => {
-            document.getElementById('message').innerText = 'System user created successfully';
+            document.getElementById('message').innerText = result.message;
             document.getElementById('systemUserForm').reset();
+          
+          
         })
         .catch(error => {
             console.error('Error creating system user:', error);
