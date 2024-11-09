@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             document.getElementById('message').innerText = 'User created successfully';
             document.getElementById('userForm').reset();
+            window.location.href = 'ticketScreen.html';
+
         })
         .catch(error => {
             console.error('Error creating user:', error);

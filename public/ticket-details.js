@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Extract ticket ID from URL query parameters
     const urlParams = new URLSearchParams(window.location.search);
     const ticketId = urlParams.get('ticketId');
-    
+
+    // Debug log for extracted ticket ID
     console.log('Extracted ticket ID:', ticketId);  // Debug log
 
     if (!ticketId) {
@@ -12,6 +13,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     fetchTicketDetails(ticketId);
+
+    // Event listener to the Edit Ticket button
+    const editTicketBtn = document.getElementById('editTicketBtn');
+    if (editTicketBtn) {
+        editTicketBtn.addEventListener('click', function() {
+            window.location.href = `ticket-edit.html?ticketId=${ticketId}`; // Redirect to edit page with ticket ID
+        });
+    }
+
+    // Event listener to the "Return to Inbox" button
+    const returnToInboxBtn = document.getElementById('returnToInboxBtn');
+    if (returnToInboxBtn) {
+        returnToInboxBtn.addEventListener('click', function() {
+            window.location.href = 'ticketScreen.html';
+        });
+    }
 });
 
 

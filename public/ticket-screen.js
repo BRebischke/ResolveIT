@@ -1,6 +1,8 @@
 // Declare ticketsData globally at the beginning
 let ticketsData = [];
 
+//populate ticketsData for filtering purposes
+fetchTickets();
 // Function to get logged-in user's ID from local storage
 function getLoggedInUserId() {
     return localStorage.getItem('userId');
@@ -59,13 +61,11 @@ function fetchTickets() {
 
 // Fetch tickets assigned to a specific user, optionally filtered by status
 function fetchTicketsForUser(userId, status = null) {
-    let url = `http://localhost:5000/users/${userId}/tickets`;
-    if (status) {
-        url += `?status=${encodeURIComponent(status)}`;
-    }
+    
 
-    fetch(url)
+    fetch(`http://localhost:5000/tickets?assigned_user_id=${userId}`)
         .then(response => {
+            
             if (!response.ok) {
                 throw new Error('Failed to fetch tickets');
             }
@@ -73,8 +73,8 @@ function fetchTicketsForUser(userId, status = null) {
         })
         .then(tickets => {
             console.log('Fetched User Tickets:', tickets); // Debug
-            ticketData = sortTickets(tickets);
-            renderTickets(tickets);
+            const ticketData = sortTickets(tickets);
+            renderTickets(ticketData);
         })
         .catch(error => {
             console.error('Error fetching tickets:', error);
@@ -82,7 +82,6 @@ function fetchTicketsForUser(userId, status = null) {
         });
 }
 
-// Function to render tickets in a table
 function renderTickets(ticketList) {
     const ticketContainer = document.getElementById('ticketContainer');
     ticketContainer.innerHTML = ''; // Clear existing tickets
@@ -115,18 +114,32 @@ function renderTickets(ticketList) {
     }
 }
 
+OpenTicketDetails
+=======
+
+main
 // Filter tickets by status from global ticketsData
 function filterTickets(status) {
     console.log('Filtering tickets with status:', status);  // Debug
     let filteredTickets;
-
-    if (status === 'all') {
-        filteredTickets = ticketsData;
+    
+    if(status == 'all') {
+        renderTickets(ticketsData);
+    }
+    else if(status == 'MyTickets') {
+        const loggedInUserId = getLoggedInUserId();
+        fetchTicketsForUser(loggedInUserId);
     } else {
+        ticketsData.forEach(ticket => {
+            console.log(ticket.status, status);
+          });
         filteredTickets = ticketsData.filter(ticket => ticket.status.toLowerCase() === status.toLowerCase());
+        console.log(filteredTickets);
+        renderTickets(filteredTickets);
+        
     }
 
-    renderTickets(filteredTickets);
+    
 }
 
 // Display error message
@@ -152,9 +165,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Add event listeners for filter buttons
+    document.getElementById('myticketsButton').addEventListener('click', () => filterTickets('MyTickets'));
+    document.getElementById('assignedButton').addEventListener('click', () => filterTickets('Assigned'));
     document.getElementById('allButton').addEventListener('click', () => filterTickets('all'));
     document.getElementById('newButton').addEventListener('click', () => filterTickets('New'));
-    document.getElementById('assignedButton').addEventListener('click', () => filterTickets('Assigned'));
     document.getElementById('inProgressButton').addEventListener('click', () => filterTickets('In Progress'));
     document.getElementById('waitingButton').addEventListener('click', () => filterTickets('Waiting'));
     document.getElementById('clientUpdatedButton').addEventListener('click', () => filterTickets('Client Updated'));

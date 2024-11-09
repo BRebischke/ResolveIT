@@ -37,7 +37,10 @@ app.post('/login', (req, res) => {
 
         if (user && bcrypt.compareSync(password, user.password)) {
             // User found and password matched
-            res.json({ message: 'Login successful' });
+            const userId = user.id;
+            const role = user.role;
+            // Send userId to login to show technician assigned tickets alongside success message
+            res.json({ role, userId, message: 'Login successful' });
         } else {
             // Invalid credentials
             res.status(401).json({ error: 'Invalid username or password' });
@@ -86,10 +89,20 @@ app.post('/register', (req, res) => {
     });
 });
 
+
 // Endpoint to get all tickets
 app.get('/tickets', (req, res) => {
-    const sql = 'SELECT * FROM tickets';
-    db.all(sql, [], (err, rows) => {
+    const userId = req.query.assigned_user_id;
+    let sql = 'SELECT * FROM tickets';
+    let params = [];
+    // Get ticket details by ID
+    if (userId) {
+        sql += ' WHERE assigned_user_id = ?';
+        params.push(userId);
+        
+    }
+    
+    db.all(sql, params, (err, rows) => {
         if (err) {
             res.status(400).json({ error: err.message });
             return;
@@ -98,22 +111,7 @@ app.get('/tickets', (req, res) => {
     });
 });
 
-// Get ticket details by ID
-app.get('/tickets/:ticketId', (req, res) => {
-    const ticketId = req.params.ticketId;
-    const sql = 'SELECT * FROM tickets WHERE id = ?';
-    db.get(sql, [ticketId], (err, row) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        if (!row) {
-            res.status(404).json({ error: 'Ticket not found' });
-            return;
-        }
-        res.json(row);
-    });
-});
+
 
 
 // Get all users
@@ -171,6 +169,7 @@ app.post('/companies', (req, res) => {
 // Add new user
 app.post('/users', (req, res) => {
     const { company_id, name, email } = req.body;
+    
     const sql = 'INSERT INTO clients (company_id, name, email) VALUES (?, ?, ?)';
     db.run(sql, [company_id, name, email], function(err) {
         if (err) {
@@ -181,16 +180,68 @@ app.post('/users', (req, res) => {
     });
 });
 
-// Add new system user (admin or technician)
+
+// Add or update a system user 
 app.post('/system-users', (req, res) => {
-    const { username, email, role } = req.body;
-    const sql = 'INSERT INTO system_users (username, email, role) VALUES (?, ?, ?)';
-    db.run(sql, [username, email, role], function(err) {
+    const { username, password, role } = req.body;
+
+    // First, check if the user already exists in the database
+    const checkUserSql = 'SELECT * FROM users WHERE username = ?';
+    
+    db.get(checkUserSql, [username], (err, row) => {
         if (err) {
-            res.status(400).json({ error: err.message });
-            return;
+            return res.status(400).json({ error: err.message });
         }
-        res.json({ message: 'System user created successfully', userId: this.lastID });
+
+        // If user exists, update the password or role
+        if (row) {
+            let updateSql = 'UPDATE users SET ';
+            let params = [];
+
+            // If a new password is provided, hash it and add to the update query
+            if (password) {
+                const hashedPassword = bcrypt.hashSync(password, 10);
+                updateSql += 'password = ?, ';
+                params.push(hashedPassword);
+            }
+
+            // If a new role is provided, update the role
+            if (role) {
+                updateSql += 'role = ? ';
+                params.push(role);
+            }
+
+            updateSql += 'WHERE username = ?';
+            params.push(username); // Always include username in the WHERE clause
+
+            // Execute the update query
+            db.run(updateSql, params, function(err) {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+
+                // Return a success message
+                res.json({
+                    message: 'System user updated successfully',
+                    changes: this.changes
+                });
+            });
+        } else {
+            // If user doesn't exist, create a new user
+            const hashedPassword = bcrypt.hashSync(password, 10);
+            const insertSql = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
+
+            db.run(insertSql, [username, hashedPassword, role], function(err) {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+
+                res.json({
+                    message: 'System user created successfully',
+                    userId: this.lastID
+                });
+            });
+        }
     });
 });
 
