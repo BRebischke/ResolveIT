@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 ticketForm.reset();  // Clear the form
                 customerSelect.disabled = true; // Reset customer dropdown to disabled state
                 clearContactDetails();  // Clear email and phone fields
+                window.location.href = 'ticket-inbox.html';
+
             })
             .catch(error => {
                 
