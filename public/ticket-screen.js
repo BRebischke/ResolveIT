@@ -91,6 +91,7 @@ function renderTickets(ticketList) {
     } else {
         ticketList.forEach(ticket => {
             const ticketRow = document.createElement('tr');
+
             ticketRow.innerHTML = `
                 <td>${ticket.id}</td>
                 <td>${ticket.priority}</td>
@@ -102,12 +103,21 @@ function renderTickets(ticketList) {
                 <td>${ticket.lastUpdated}</td>
                 <td>${ticket.owner}</td>
             `;
+
+            // Add a click event to each row
+            ticketRow.addEventListener('click', () => {
+                 window.location.href = `ticket-details.html?ticketId=${ticket.id}`;
+            });
+
             ticketContainer.appendChild(ticketRow);
         });
     }
 }
 
+OpenTicketDetails
+=======
 
+main
 // Filter tickets by status from global ticketsData
 function filterTickets(status) {
     console.log('Filtering tickets with status:', status);  // Debug
