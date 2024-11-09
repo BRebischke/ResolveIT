@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             email: userEmail
         };
 
-        fetch('http://localhost:5000/users', {
+        fetch('http://localhost:5001/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             document.getElementById('message').innerText = 'User created successfully';
             document.getElementById('userForm').reset();
+            window.location.href = 'ticketScreen.html';
+
         })
         .catch(error => {
             console.error('Error creating user:', error);
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function fetchCompanies() {
-    fetch('http://localhost:5000/companies')
+    fetch('http://localhost:5001/companies')
         .then(response => response.json())
         .then(companies => {
             const companySelect = document.getElementById('companySelect');

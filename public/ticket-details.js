@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Extract ticket ID from URL query parameters
     const urlParams = new URLSearchParams(window.location.search);
     const ticketId = urlParams.get('ticketId');
-    
+
+    // Debug log for extracted ticket ID
     console.log('Extracted ticket ID:', ticketId);  // Debug log
 
     if (!ticketId) {
@@ -12,6 +13,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     fetchTicketDetails(ticketId);
+
+    // Event listener to the Edit Ticket button
+    const editTicketBtn = document.getElementById('editTicketBtn');
+    if (editTicketBtn) {
+        editTicketBtn.addEventListener('click', function() {
+            window.location.href = `ticket-edit.html?ticketId=${ticketId}`; // Redirect to edit page with ticket ID
+        });
+    }
+
+    // Event listener to the "Return to Inbox" button
+    const returnToInboxBtn = document.getElementById('returnToInboxBtn');
+    if (returnToInboxBtn) {
+        returnToInboxBtn.addEventListener('click', function() {
+            window.location.href = 'ticketScreen.html';
+        });
+    }
 });
 
 
@@ -20,7 +37,7 @@ console.log('Ticket ID before fetching:', ticketId);
 
 // Function to fetch ticket details
 function fetchTicketDetails(ticketId) {
-    fetch(`http://localhost:5000/tickets/${ticketId}`)
+    fetch(`http://localhost:5001/tickets/${ticketId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch ticket details');
@@ -58,7 +75,7 @@ function renderTicketDetails(ticket) {
 
 // Function to fetch and render audit trail
 function fetchAuditTrail(ticketId) {
-    fetch(`http://localhost:5000/tickets/${ticketId}/audit`)
+    fetch(`http://localhost:5001/tickets/${ticketId}/audit`)
         .then(response => response.json())
         .then(auditTrail => {
             const auditContainer = document.getElementById('auditTrail');
@@ -78,7 +95,7 @@ function fetchAuditTrail(ticketId) {
 
 // Function to fetch and render email communication
 function fetchEmailChain(ticketId) {
-    fetch(`http://localhost:5000/tickets/${ticketId}/emails`)
+    fetch(`http://localhost:5001/tickets/${ticketId}/emails`)
         .then(response => response.json())
         .then(emailChain => {
             const emailContainer = document.getElementById('emailChain');

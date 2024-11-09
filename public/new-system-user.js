@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             role: systemUserRole
         };
 
-        fetch('http://localhost:5000/system-users', {
+        fetch('http://localhost:5001/system-users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(systemUserData)
@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             document.getElementById('message').innerText = 'System user created successfully';
             document.getElementById('systemUserForm').reset();
+            window.location.href = 'ticketScreen.html';
+
         })
         .catch(error => {
             console.error('Error creating system user:', error);

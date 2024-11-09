@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             address: companyAddress
         };
 
-        fetch('http://localhost:5000/companies', {
+        fetch('http://localhost:5001/companies', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(companyData)
@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             document.getElementById('message').innerText = 'Company created successfully';
             document.getElementById('companyForm').reset();
+            window.location.href = 'ticketScreen.html';
+
         })
         .catch(error => {
             console.error('Error creating company:', error);
