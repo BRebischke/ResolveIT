@@ -15,11 +15,34 @@
 				<div class="dropdown">
 					<button class="dropbtn" onclick="toggleDropdown()"><i class="fas fa-plus"></i> New</button>
 				<div class="dropdown-content" id="dropdownContent">
-					<a href="create-ticket.html" onclick="showNewTicketForm()">New Ticket</a>
-					<a href="new-company.html" onclick="showNewCompanyForm()">New Company</a>
-					<a href="new-user.html" onclick="showNewUserForm()">New User</a>
-                    <a href="new-system-user.html" onclick="showNewSystemUserForm()">New System User</a>
+					<a id="newTicketLink" href="create-ticket.html" onclick="showNewTicketForm()">New Ticket</a>
+					<a id="newCompanyLink" href="new-company.html" onclick="showNewCompanyForm()">New Company</a>
+					<a id="newUserLink" href="new-user.html" onclick="showNewUserForm()">New User</a>
+                    <a id="newSystemUserLink" href="new-system-user.html" onclick="showNewSystemUserForm()">New System User</a>
     </div>
+    <script>
+        // Wait for the DOM to fully load
+        window.onload = function() {
+            // Get the user's role from localStorage
+            var role = localStorage.getItem('role');
+            
+            
+            if (role == 'Technician') {
+                // Hide admin-specific links if role is not admin
+                
+                document.getElementById('newCompanyLink').style.display = 'none';
+                document.getElementById('newUserLink').style.display = 'none';
+                document.getElementById('newSystemUserLink').style.display = 'none';
+                // Check if the role is 'admin'
+            } else if (role != 'Admin') {
+
+                document.getElementById('newTicketLink').style.display = 'none';
+                document.getElementById('newCompanyLink').style.display = 'none';
+                document.getElementById('newUserLink').style.display = 'none';
+                document.getElementById('newSystemUserLink').style.display = 'none';
+            }
+        };
+    </script>
 </div>
 
             <button onClick="location.href = 'ticketScreen.html';"><i class="fas fa-calendar"></i> My Tickets</button>
@@ -33,9 +56,10 @@
         <div class="ticket-list">
             <h2>My List</h2>
             <div class="filters">
+                <button id="myticketsButton" class="filter-button">My Tickets</button>
+                <button id="assignedButton" class="filter-button">Assigned</button>
                 <button id="allButton" class="filter-button">All</button>
                 <button id="newButton" class="filter-button">New</button>
-                <button id="assignedButton" class="filter-button">Assigned</button>
                 <button id="inProgressButton" class="filter-button">In Progress</button>
                 <button id="waitingButton" class="filter-button">Waiting</button>
                 <button id="clientUpdatedButton" class="filter-button">Client Updated</button>

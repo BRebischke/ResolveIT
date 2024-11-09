@@ -13,10 +13,13 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     })
     .then(response => response.json())
     .then(result => {
+        
         if (result.message === 'Login successful') {
             // Redirect to main dashboard or save authentication state
             window.location.href = 'ticketScreen.html'; // Redirect to dashboard
-        } else {
+            localStorage.setItem('userId', result.userId);
+            localStorage.setItem('role', result.role);
+        }else {
             // Show error message
             document.getElementById('errorMessage').innerText = result.error;
         }
