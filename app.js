@@ -93,7 +93,17 @@ app.post('/register', (req, res) => {
 // Endpoint to get all tickets
 app.get('/tickets', (req, res) => {
     const userId = req.query.assigned_user_id;
-    let sql = 'SELECT * FROM tickets';
+    let sql = `
+    SELECT tickets.*, 
+           companies.name AS company_name, 
+           users.name AS ticket_owner_name,
+           customers.name AS contact_name
+    FROM tickets
+    LEFT JOIN companies ON tickets.company_id = companies.id
+    LEFT JOIN users ON tickets.assigned_user_id = users.id
+    LEFT JOIN customers ON tickets.customer_id = customers.id
+`;
+
     let params = [];
     // Get ticket details by ID
     if (userId) {
