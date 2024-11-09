@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             role: systemUserRole
         };
 
-        fetch('http://localhost:5001/system-users', {
+        fetch('http://localhost:5000/system-users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(systemUserData)

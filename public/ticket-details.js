@@ -37,7 +37,7 @@ console.log('Ticket ID before fetching:', ticketId);
 
 // Function to fetch ticket details
 function fetchTicketDetails(ticketId) {
-    fetch(`http://localhost:5001/tickets/${ticketId}`)
+    fetch(`http://localhost:5000/tickets/${ticketId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch ticket details');
@@ -75,7 +75,7 @@ function renderTicketDetails(ticket) {
 
 // Function to fetch and render audit trail
 function fetchAuditTrail(ticketId) {
-    fetch(`http://localhost:5001/tickets/${ticketId}/audit`)
+    fetch(`http://localhost:5000/tickets/${ticketId}/audit`)
         .then(response => response.json())
         .then(auditTrail => {
             const auditContainer = document.getElementById('auditTrail');
@@ -95,7 +95,7 @@ function fetchAuditTrail(ticketId) {
 
 // Function to fetch and render email communication
 function fetchEmailChain(ticketId) {
-    fetch(`http://localhost:5001/tickets/${ticketId}/emails`)
+    fetch(`http://localhost:5000/tickets/${ticketId}/emails`)
         .then(response => response.json())
         .then(emailChain => {
             const emailContainer = document.getElementById('emailChain');
