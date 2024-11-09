@@ -82,6 +82,7 @@ function fetchTicketsForUser(userId, status = null) {
         });
 }
 
+
 function renderTickets(ticketList) {
     const ticketContainer = document.getElementById('ticketContainer');
     ticketContainer.innerHTML = ''; // Clear existing tickets
@@ -91,33 +92,23 @@ function renderTickets(ticketList) {
     } else {
         ticketList.forEach(ticket => {
             const ticketRow = document.createElement('tr');
-
             ticketRow.innerHTML = `
                 <td>${ticket.id}</td>
                 <td>${ticket.priority}</td>
-                <td>${ticket.age}</td>
-                <td>${ticket.company}</td>
+                <td>${ticket.company || 'N/A'}</td>
                 <td>${ticket.status}</td>
-                <td>${ticket.description}</td>
-                <td>${ticket.contact}</td>
-                <td>${ticket.lastUpdated}</td>
-                <td>${ticket.owner}</td>
+                <td><a href="ticket-details.html?ticketId=${ticket.id}">${ticket.summary}</a></td>
+                <td>${ticket.contact || 'N/A'}</td>
+                <td>${ticket.createdDate || 'N/A'}</td>
+                <td>${ticket.ticketOwner || 'N/A'}</td>
             `;
-
-            // Add a click event to each row
-            ticketRow.addEventListener('click', () => {
-                 window.location.href = `ticket-details.html?ticketId=${ticket.id}`;
-            });
-
             ticketContainer.appendChild(ticketRow);
         });
     }
 }
 
-OpenTicketDetails
-=======
 
-main
+
 // Filter tickets by status from global ticketsData
 function filterTickets(status) {
     console.log('Filtering tickets with status:', status);  // Debug
