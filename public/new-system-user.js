@@ -27,8 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             document.getElementById('message').innerText = result.message;
             document.getElementById('systemUserForm').reset();
+ButtonRedirections
+            window.location.href = 'ticketScreen.html';
+
+=======
           
           
+main
         })
         .catch(error => {
             console.error('Error creating system user:', error);

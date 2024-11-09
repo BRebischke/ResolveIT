@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             document.getElementById('message').innerText = 'Company created successfully';
             document.getElementById('companyForm').reset();
+            window.location.href = 'ticketScreen.html';
+
         })
         .catch(error => {
             console.error('Error creating company:', error);
