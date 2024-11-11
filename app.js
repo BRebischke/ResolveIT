@@ -50,14 +50,15 @@ app.post('/login', (req, res) => {
 
 app.post('/tickets', (req, res) => {
     const { summary, status, priority, customerId, companyId, assignedUserId } = req.body;
-    const sql = 'INSERT INTO tickets (summary, status, priority, customer_id, company_id, assigned_user_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const sql = `INSERT INTO tickets (summary, status, priority, customer_id, company_id, assigned_user_id)
+                 VALUES (?, ?, ?, ?, ?, ?)`;
     const params = [summary, status, priority, customerId, companyId, assignedUserId];
     db.run(sql, params, function(err) {
         if (err) {
-            res.status(400).json({ "error": err.message });
+            res.status(400).json({ error: err.message });
             return;
         }
-        res.json({ message: 'Ticket created successfully', ticketId: this.lastID });
+        res.json({ ticketId: this.lastID });
     });
 });
 
@@ -105,6 +106,8 @@ app.get('/tickets', (req, res) => {
 `;
 
     let params = [];
+
+    
     // Get ticket details by ID
     if (userId) {
         sql += ' WHERE assigned_user_id = ?';
