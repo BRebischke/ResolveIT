@@ -59,28 +59,7 @@ function fetchTickets() {
         .catch(error => console.error('Error fetching tickets:', error));
 }
 
-// Fetch tickets assigned to a specific user, optionally filtered by status
-function fetchTicketsForUser(userId, status = null) {
-    
 
-    fetch(`http://localhost:5000/tickets?assigned_user_id=${userId}`)
-        .then(response => {
-            
-            if (!response.ok) {
-                throw new Error('Failed to fetch tickets');
-            }
-            return response.json();
-        })
-        .then(tickets => {
-            console.log('Fetched User Tickets:', tickets); // Debug
-            const ticketData = sortTickets(tickets);
-            renderTickets(ticketData);
-        })
-        .catch(error => {
-            console.error('Error fetching tickets:', error);
-            displayError('Unable to load tickets. Please try again later.');
-        });
-}
 
 
 function renderTickets(ticketList) {
@@ -146,23 +125,11 @@ function displayError(message) {
     }
 }
 
-// Load tickets and set up event listeners on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const loggedInUserId = getLoggedInUserId();
-    
-    if (loggedInUserId) {
-        fetchTicketsForUser(loggedInUserId); // Fetch tickets for logged-in user
-    } else {
-        fetchTickets(); // Fallback to fetching all tickets if no user is logged in
-    }
-
     // Add event listeners for filter buttons
-    document.getElementById('myticketsButton').addEventListener('click', () => filterTickets('MyTickets'));
-    document.getElementById('assignedButton').addEventListener('click', () => filterTickets('Assigned'));
     document.getElementById('allButton').addEventListener('click', () => filterTickets('all'));
+    document.getElementById('assignedButton').addEventListener('click', () => filterTickets('Assigned'));
     document.getElementById('newButton').addEventListener('click', () => filterTickets('New'));
     document.getElementById('inProgressButton').addEventListener('click', () => filterTickets('In Progress'));
     document.getElementById('waitingButton').addEventListener('click', () => filterTickets('Waiting'));
     document.getElementById('clientUpdatedButton').addEventListener('click', () => filterTickets('Client Updated'));
     document.getElementById('completeButton').addEventListener('click', () => filterTickets('Complete'));
-});
