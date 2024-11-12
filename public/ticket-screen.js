@@ -102,6 +102,10 @@ function renderTickets(ticketList) {
                 <td>${ticket.created_at || 'N/A'}</td>
                 <td>${ticket.ticket_owner_name || 'N/A'}</td>
 `;
+            // Add a click event to each row
+            ticketRow.addEventListener('click', () => {
+                window.location.href = `ticket-details.html?ticketId=${ticket.id}`;
+            });
 
             ticketContainer.appendChild(ticketRow);
         });
