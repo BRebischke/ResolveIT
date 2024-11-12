@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-console.log('Ticket ID before fetching:', ticketId);
+//console.log('Ticket ID before fetching:', ticketId);
 
 
 // Function to fetch ticket details
@@ -61,18 +61,17 @@ function renderTicketDetails(ticket) {
         <p><strong>Description:</strong> ${ticket.description}</p>
         <p><strong>Status:</strong> ${ticket.status}</p>
         <p><strong>Priority:</strong> ${ticket.priority}</p>
-        <p><strong>Assigned User:</strong> ${ticket.assignedUser || 'Unassigned'}</p>
-        <p><strong>Company:</strong> ${ticket.company}</p>
-        <p><strong>Contact:</strong> ${ticket.contact}</p>
-        <p><strong>Phone:</strong> ${ticket.phone}</p>
-        <p><strong>Email:</strong> ${ticket.email}</p>
+        <p><strong>Assigned User:</strong> ${ticket.assignedUserName || 'Unassigned'}</p>
+        <p><strong>Company:</strong> ${ticket.companyName || 'No company'}</p>
+        <p><strong>Contact:</strong> ${ticket.contactName || 'No contact'}</p>
+        <p><strong>Phone:</strong> ${ticket.contactPhone || 'No phone'}</p>
+        <p><strong>Email:</strong> ${ticket.contactEmail || 'No email'}</p>
     `;
 
     // You can add more functions here to fetch audit trail and email chain
     fetchAuditTrail(ticket.id);
     fetchEmailChain(ticket.id);
 }
-
 // Function to fetch and render audit trail
 function fetchAuditTrail(ticketId) {
     fetch(`http://localhost:5000/tickets/${ticketId}/audit`)
