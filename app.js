@@ -90,6 +90,41 @@ app.post('/register', (req, res) => {
     });
 });
 
+app.get('/tickets/:id', (req, res) => {
+    const { id } = req.params;
+
+    const sql = `
+        SELECT tickets.*,
+               users.name AS assignedUserName,
+               companies.name AS companyName,
+               customers.name AS contactName,
+               customers.email AS contactEmail,
+               customers.phone AS contactPhone
+        FROM tickets
+        LEFT JOIN users ON tickets.assigned_user_id = users.id
+        LEFT JOIN companies ON tickets.company_id = companies.id
+        LEFT JOIN customers ON tickets.customer_id = customers.id
+        WHERE tickets.id = ?
+    `;
+
+    console.log('Executing SQL:', sql);  // Log the query to check if it's formed properly.
+
+    db.get(sql, [id], (err, ticket) => {
+        if (err) {
+            console.error('Error fetching ticket:', err);
+            return res.status(500).json({ message: 'Error retrieving ticket' });
+        }
+
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+
+        console.log('Ticket details fetched:', ticket);  // Log the fetched ticket to check the response.
+
+        // Respond with the full ticket data, including additional fields
+        res.json(ticket);
+    });
+});
 
 // Endpoint to get all tickets
 app.get('/tickets', (req, res) => {
