@@ -215,10 +215,10 @@ app.post('/companies', (req, res) => {
 });
 
 // Add new user
-app.post('/users', (req, res) => {
+app.post('/customers', (req, res) => {
     const { company_id, name, email } = req.body;
     
-    const sql = 'INSERT INTO clients (company_id, name, email) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO customers (company_id, name, email) VALUES (?, ?, ?)';
     db.run(sql, [company_id, name, email], function(err) {
         if (err) {
             res.status(400).json({ error: err.message });
@@ -230,7 +230,7 @@ app.post('/users', (req, res) => {
 
 
 // Add or update a system user 
-app.post('/system-users', (req, res) => {
+app.post('/users', (req, res) => {
     const { username, password, role } = req.body;
 
     // First, check if the user already exists in the database
