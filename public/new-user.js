@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             email: userEmail
         };
 
-        fetch('http://localhost:5000/users', {
+        fetch('http://localhost:5000/customers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
