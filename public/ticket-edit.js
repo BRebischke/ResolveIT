@@ -182,9 +182,7 @@ function updateTicket(ticketId) {
     // Send the PATCH request to the backend
     fetch(`http://localhost:5000/tickets/${ticketId}`, {
         method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(updatedData),
     })
     .then(response => {

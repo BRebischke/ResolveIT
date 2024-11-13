@@ -26,9 +26,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const returnToInboxBtn = document.getElementById('returnToInboxBtn');
     if (returnToInboxBtn) {
         returnToInboxBtn.addEventListener('click', function() {
-            window.location.href = 'ticketScreen.html';
+            // Get the referrer URL
+            const referrer = document.referrer;
+
+            // Redirect to the previous page or a default page if referrer is not available
+            if (referrer.includes('ticketScreen.html')) {
+                window.location.href = 'ticketScreen.html'; // Return to ticketScreen
+            } else if (referrer.includes('all-tickets.html')) {
+                window.location.href = 'all-tickets.html'; // Return to all-tickets
+            } else {
+                window.location.href = 'ticketScreen.html'; // Default to ticketScreen if the referrer is not recognized
+            }
         });
     }
+
+
 });
 
 
@@ -57,6 +69,9 @@ function fetchTicketDetails(ticketId) {
 function renderTicketDetails(ticket) {
     const ticketDetailsContainer = document.getElementById('ticketDetails');
 
+    document.getElementById('ticketId').innerHTML = `<strong>Ticket ID:</strong> ${ticket.id}`;
+    document.getElementById('ticketTitle').innerHTML = `${ticket.summary || 'No summary available'}`;
+
     ticketDetailsContainer.innerHTML = `
         <p><strong>Description:</strong> ${ticket.description}</p>
         <p><strong>Status:</strong> ${ticket.status}</p>
@@ -69,8 +84,8 @@ function renderTicketDetails(ticket) {
     `;
 
     // You can add more functions here to fetch audit trail and email chain
-    fetchAuditTrail(ticket.id);
-    fetchEmailChain(ticket.id);
+    //fetchAuditTrail(ticket.id);
+    //fetchEmailChain(ticket.id);
 }
 // Function to fetch and render audit trail
 function fetchAuditTrail(ticketId) {
