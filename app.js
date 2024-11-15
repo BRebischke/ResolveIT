@@ -20,6 +20,24 @@ const db = new sqlite3.Database('./ticketing_system.db', (err) => {
     }
 });
 
+app.put('/tickets/:id', (req, res) => {
+    const ticketId = req.params.id;
+    const { summary, status, priority, customer_id, assigned_user_id } = req.body;
+
+    // Only update the fields that can be changed
+    const sql = `
+        UPDATE tickets
+        SET summary = ?, status = ?, priority = ?, customer_id = ?, assigned_user_id = ?
+        WHERE id = ?`;
+
+    db.run(sql, [summary, status, priority, customer_id, assigned_user_id, ticketId], function(err) {
+        if (err) {
+            return res.status(400).json({ error: err.message });
+        }
+        res.json({ message: 'Ticket updated successfully', changes: this.changes });
+    });
+});
+
 // Root route to serve the index.html file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -90,6 +108,41 @@ app.post('/register', (req, res) => {
     });
 });
 
+app.get('/tickets/:id', (req, res) => {
+    const { id } = req.params;
+
+    const sql = `
+        SELECT tickets.*,
+               users.name AS assignedUserName,
+               companies.name AS companyName,
+               customers.name AS contactName,
+               customers.email AS contactEmail,
+               customers.phone AS contactPhone
+        FROM tickets
+        LEFT JOIN users ON tickets.assigned_user_id = users.id
+        LEFT JOIN companies ON tickets.company_id = companies.id
+        LEFT JOIN customers ON tickets.customer_id = customers.id
+        WHERE tickets.id = ?
+    `;
+
+    //console.log('Executing SQL:', sql);  // Log the query to check if it's formed properly.
+
+    db.get(sql, [id], (err, ticket) => {
+        if (err) {
+            console.error('Error fetching ticket:', err);
+            return res.status(500).json({ message: 'Error retrieving ticket' });
+        }
+
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+
+        //console.log('Ticket details fetched:', ticket);  // Log the fetched ticket to check the response.
+
+        // Respond with the full ticket data, including additional fields
+        res.json(ticket);
+    });
+});
 
 // Endpoint to get all tickets
 app.get('/tickets', (req, res) => {
@@ -123,9 +176,6 @@ app.get('/tickets', (req, res) => {
         res.json(rows); // Return all tickets
     });
 });
-
-
-
 
 // Get all users
 app.get('/users', (req, res) => {
@@ -165,6 +215,29 @@ app.get('/companies/:companyId/customers', (req, res) => {
     });
 });
 
+/*
+// Endpoint to fetch company details by company_id
+app.get('/companies/:id', (req, res) => {
+    const companyId = req.params.id;
+
+    // Query to get company details by ID
+    db.get('SELECT * FROM v_companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Company not found' });
+        }
+        // Send the company details back as the response
+        res.json({
+            id: row.id,
+            name: row.name,
+            address: row.address,
+            created_at: row.created_at
+        });
+    });
+}); */
 
 // Add new company
 app.post('/companies', (req, res) => {
@@ -180,10 +253,10 @@ app.post('/companies', (req, res) => {
 });
 
 // Add new user
-app.post('/users', (req, res) => {
+app.post('/customers', (req, res) => {
     const { company_id, name, email } = req.body;
     
-    const sql = 'INSERT INTO clients (company_id, name, email) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO customers (company_id, name, email) VALUES (?, ?, ?)';
     db.run(sql, [company_id, name, email], function(err) {
         if (err) {
             res.status(400).json({ error: err.message });
@@ -195,7 +268,7 @@ app.post('/users', (req, res) => {
 
 
 // Add or update a system user 
-app.post('/system-users', (req, res) => {
+app.post('/users', (req, res) => {
     const { username, password, role } = req.body;
 
     // First, check if the user already exists in the database
@@ -258,6 +331,47 @@ app.post('/system-users', (req, res) => {
     });
 });
 
+// PATCH route to update ticket fields
+app.patch('/tickets/:id', (req, res) => {
+    const { id } = req.params;
+    const { summary, assigned_user_id, priority, status } = req.body;
+
+    // Construct the update query
+    const updates = [];
+    const values = [];
+
+    if (summary !== undefined) {
+        updates.push("summary = ?");
+        values.push(summary);
+    }
+    if (assigned_user_id !== undefined) {
+        updates.push("assigned_user_id = ?");
+        values.push(assigned_user_id);
+    }
+    if (priority !== undefined) {
+        updates.push("priority = ?");
+        values.push(priority);
+    }
+    if (status !== undefined) {
+        updates.push("status = ?");
+        values.push(status);
+    }
+
+    if (updates.length === 0) {
+        return res.status(400).json({ error: 'No fields provided to update' });
+    }
+
+    values.push(id);
+
+    const sql = `UPDATE tickets SET ${updates.join(', ')} WHERE id = ?`;
+
+    db.run(sql, values, function (err) {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to update ticket' });
+        }
+        res.json({ message: 'Ticket updated successfully' });
+    });
+});
 
 // Start server
 const PORT = 5000;
