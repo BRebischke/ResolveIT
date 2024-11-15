@@ -17,6 +17,16 @@
         <form id="ticketForm">
             <div class="form-group">
                 <label for="companySelect">Company:</label>
+                <select id="companySelect" required>
+                    <option value="">Select Company</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="customerSelect">Contact:</label>
+                <select id="customerSelect" required>
+                    <option value="">Select Contact</option>
+                </select>
+
                 <!-- Use a readonly input instead of a select, so it's not editable -->
                 <input type="text" id="companySelect" readonly placeholder="Company Name">
             </div>
@@ -83,6 +93,13 @@
         </form>
     </div>
 </div>
+
+<!-- Include create-ticket.js first, so its functions are available globally -->
+<script src="create-ticket.js"></script>
+<!-- Then include ticket-edit.js, which will reuse the functions from create-ticket.js -->
+<script src="ticket-edit.js"></script>
+</body>
+</html>
 
 <!-- Then include ticket-edit.js, which will reuse the functions from create-ticket.js -->
 <script src="ticket-edit.js"></script>

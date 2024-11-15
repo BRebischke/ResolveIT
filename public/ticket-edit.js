@@ -5,6 +5,46 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchTicketDetails(ticketId); // Fetch and populate the ticket details on page load
     }
 
+    fetchCompanies(); // Populate the companies dropdown on page load
+    fetchUsers(); // Populate the users dropdown on page load
+
+    // Add event listener for when a company is selected
+    const companySelect = document.getElementById('companySelect');
+    if (companySelect) {
+        companySelect.addEventListener('change', function() {
+            const companyId = this.value;
+            const customerSelect = document.getElementById('customerSelect');
+
+            if (companyId) {
+                customerSelect.disabled = true; // Disable until customers are loaded
+                fetchCustomers(companyId);  // Fetch customers only if a company is selected
+            } else {
+                customerSelect.innerHTML = '<option value="">Select Customer</option>';
+                customerSelect.disabled = true;
+                clearContactDetails(); // Clear email and phone fields if no company is selected
+            }
+        });
+    }
+
+    // Add event listener for when a customer is selected to auto-fill the email and phone number
+    const customerSelect = document.getElementById('customerSelect');
+    if (customerSelect) {
+        customerSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
+
+            if (selectedOption && selectedOption.value) {
+                const customerEmail = selectedOption.getAttribute('data-email');
+                const customerPhone = selectedOption.getAttribute('data-phone');
+                if (emailInput) emailInput.value = customerEmail;  // Set the email field
+                if (phoneInput) phoneInput.value = customerPhone;  // Set the phone field
+            } else {
+                clearContactDetails(); // Clear email and phone fields if no customer is selected
+            }
+        });
+    }
+
     //fetchCompanies(); // Populate the companies dropdown on page load
     //fetchUsers(); // Populate the users dropdown on page load
 
@@ -30,6 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 summary,
                 status,
                 priority,
+                customerId,
+                companyId,
+                assignedUserId
+            };
+
+            // Update the ticket by calling PUT request
+
                 customer_id: customerId,
                 company_id: companyId,
                 assigned_user_id: assignedUserId
@@ -45,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(ticketData)
             })
             .then(response => {
+
                 console.log("Response Status:", response.status);  // Log response status
                 if (!response.ok) {
                     throw new Error('Failed to update ticket');
@@ -52,6 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(result => {
+                displaySuccess('Ticket updated successfully');
+                ticketForm.reset();  // Clear the form
+
                 console.log("Ticket Updated Result:", result);  // Log success response
                 displaySuccess('Ticket updated successfully');
                 ticketForm.reset();  // Reset the form
@@ -72,6 +123,8 @@ function getTicketIdFromUrl() {
     return urlParams.get('ticketId'); // Assumes URL is something like /edit-ticket?ticketId=123
 }
 
+// Fetch and display the current ticket's details
+
 function fetchTicketDetails(ticketId) {
     fetch(`http://localhost:5000/tickets/${ticketId}`)
         .then(response => {
@@ -81,6 +134,25 @@ function fetchTicketDetails(ticketId) {
             return response.json();
         })
         .then(ticket => {
+            // Populate the form fields with the current ticket's data
+            document.getElementById('ticketSummary').value = ticket.summary;
+            document.getElementById('ticketPriority').value = ticket.priority;
+            document.getElementById('ticketStatus').value = ticket.status;
+
+            // Set the company dropdown
+            const companySelect = document.getElementById('companySelect');
+            companySelect.value = ticket.companyId;
+            fetchCustomers(ticket.companyId);  // Re-fetch customers for the selected company
+
+            // Set the customer dropdown
+            const customerSelect = document.getElementById('customerSelect');
+            customerSelect.value = ticket.customerId;
+            customerSelect.dispatchEvent(new Event('change'));  // Auto-fill contact details
+
+            // Set the assigned user dropdown
+            const userSelect = document.getElementById('userSelect');
+            userSelect.value = ticket.assignedUserId;
+
             // Populate ticket details
             document.getElementById('ticketSummary').value = ticket.summary || '';
             document.getElementById('ticketPriority').value = ticket.priority || 'Medium';
@@ -102,6 +174,83 @@ function fetchTicketDetails(ticketId) {
             displayError('Unable to load ticket details. Please try again later.');
         });
 }
+
+// Function to clear contact details fields
+function clearContactDetails() {
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+    if (emailInput) emailInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+}
+
+// Fetch and populate the companies dropdown
+function fetchCompanies() {
+    const companySelect = document.getElementById('companySelect');
+    fetch('http://localhost:5000/companies')
+        .then(response => response.json())
+        .then(companies => {
+            companies.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company.id;
+                option.textContent = company.name;
+                companySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching companies:', error));
+}
+
+// Fetch and populate the users dropdown
+function fetchUsers() {
+    const userSelect = document.getElementById('userSelect');
+    fetch('http://localhost:5000/users')
+        .then(response => response.json())
+        .then(users => {
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.first_name} ${user.last_name}`;
+                userSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching users:', error));
+}
+
+// Fetch and populate the customers dropdown based on selected company
+function fetchCustomers(companyId) {
+    const customerSelect = document.getElementById('customerSelect');
+    fetch(`http://localhost:5000/companies/${companyId}/customers`)
+        .then(response => response.json())
+        .then(customers => {
+            customerSelect.innerHTML = '<option value="">Select Customer</option>'; // Clear existing options
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.id;
+                option.textContent = `${customer.first_name} ${customer.last_name}`;
+                option.setAttribute('data-email', customer.email);
+                option.setAttribute('data-phone', customer.phone);
+                customerSelect.appendChild(option);
+            });
+            customerSelect.disabled = false;  // Enable customer select after fetching
+        })
+        .catch(error => console.error('Error fetching customers:', error));
+}
+
+// Display success message
+function displaySuccess(message) {
+    const messageElement = document.createElement('p');
+    messageElement.style.color = 'green';
+    messageElement.innerText = message;
+    document.body.appendChild(messageElement);
+}
+
+// Display error message
+function displayError(message) {
+    const messageElement = document.createElement('p');
+    messageElement.style.color = 'red';
+    messageElement.innerText = message;
+    document.body.appendChild(messageElement);
+}
+
 
 // Fetch and display users in the user dropdown, pre-select the assigned user
 function fetchUsers(currentAssignedUserId) {
@@ -213,6 +362,3 @@ if (ticketId) {
 } else {
     console.error("No ticketId found in URL");
 }
-
-
-
