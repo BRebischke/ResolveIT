@@ -20,6 +20,24 @@ const db = new sqlite3.Database('./ticketing_system.db', (err) => {
     }
 });
 
+app.put('/tickets/:id', (req, res) => {
+    const ticketId = req.params.id;
+    const { summary, status, priority, customer_id, assigned_user_id } = req.body;
+
+    // Only update the fields that can be changed
+    const sql = `
+        UPDATE tickets
+        SET summary = ?, status = ?, priority = ?, customer_id = ?, assigned_user_id = ?
+        WHERE id = ?`;
+
+    db.run(sql, [summary, status, priority, customer_id, assigned_user_id, ticketId], function(err) {
+        if (err) {
+            return res.status(400).json({ error: err.message });
+        }
+        res.json({ message: 'Ticket updated successfully', changes: this.changes });
+    });
+});
+
 // Root route to serve the index.html file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -107,7 +125,7 @@ app.get('/tickets/:id', (req, res) => {
         WHERE tickets.id = ?
     `;
 
-    console.log('Executing SQL:', sql);  // Log the query to check if it's formed properly.
+    //console.log('Executing SQL:', sql);  // Log the query to check if it's formed properly.
 
     db.get(sql, [id], (err, ticket) => {
         if (err) {
@@ -119,7 +137,7 @@ app.get('/tickets/:id', (req, res) => {
             return res.status(404).json({ message: 'Ticket not found' });
         }
 
-        console.log('Ticket details fetched:', ticket);  // Log the fetched ticket to check the response.
+        //console.log('Ticket details fetched:', ticket);  // Log the fetched ticket to check the response.
 
         // Respond with the full ticket data, including additional fields
         res.json(ticket);
@@ -159,9 +177,6 @@ app.get('/tickets', (req, res) => {
     });
 });
 
-
-
-
 // Get all users
 app.get('/users', (req, res) => {
     const sql = 'SELECT * FROM users';
@@ -200,6 +215,29 @@ app.get('/companies/:companyId/customers', (req, res) => {
     });
 });
 
+/*
+// Endpoint to fetch company details by company_id
+app.get('/companies/:id', (req, res) => {
+    const companyId = req.params.id;
+
+    // Query to get company details by ID
+    db.get('SELECT * FROM v_companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Company not found' });
+        }
+        // Send the company details back as the response
+        res.json({
+            id: row.id,
+            name: row.name,
+            address: row.address,
+            created_at: row.created_at
+        });
+    });
+}); */
 
 // Add new company
 app.post('/companies', (req, res) => {
@@ -293,6 +331,47 @@ app.post('/users', (req, res) => {
     });
 });
 
+// PATCH route to update ticket fields
+app.patch('/tickets/:id', (req, res) => {
+    const { id } = req.params;
+    const { summary, assigned_user_id, priority, status } = req.body;
+
+    // Construct the update query
+    const updates = [];
+    const values = [];
+
+    if (summary !== undefined) {
+        updates.push("summary = ?");
+        values.push(summary);
+    }
+    if (assigned_user_id !== undefined) {
+        updates.push("assigned_user_id = ?");
+        values.push(assigned_user_id);
+    }
+    if (priority !== undefined) {
+        updates.push("priority = ?");
+        values.push(priority);
+    }
+    if (status !== undefined) {
+        updates.push("status = ?");
+        values.push(status);
+    }
+
+    if (updates.length === 0) {
+        return res.status(400).json({ error: 'No fields provided to update' });
+    }
+
+    values.push(id);
+
+    const sql = `UPDATE tickets SET ${updates.join(', ')} WHERE id = ?`;
+
+    db.run(sql, values, function (err) {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to update ticket' });
+        }
+        res.json({ message: 'Ticket updated successfully' });
+    });
+});
 
 // Start server
 const PORT = 5000;
