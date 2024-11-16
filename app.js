@@ -44,29 +44,7 @@ app.put('/tickets/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-// Login endpoint
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
 
-    // SQL query to check for user
-    const query = 'SELECT * FROM users WHERE username = ?';
-    db.get(query, [username], (err, user) => {
-        if (err) {
-            return res.status(500).json({ error: 'Database error' });
-        }
-
-        if (user && bcrypt.compareSync(password, user.password)) {
-            // User found and password matched
-            const userId = user.id;
-            const role = user.role;
-            // Send userId to login to show technician assigned tickets alongside success message
-            res.json({ role, userId, message: 'Login successful' });
-        } else {
-            // Invalid credentials
-            res.status(401).json({ error: 'Invalid username or password' });
-        }
-    });
-});
 // Generate a 2FA secret for the user
 app.post('/2fa/setup', (req, res) => {
     const { userId } = req.body;
@@ -117,6 +95,63 @@ app.post('/2fa/validate', (req, res) => {
             res.json({ message: '2FA validated successfully' });
         } else {
             res.status(401).json({ error: 'Invalid 2FA token' });
+        }
+    });
+});
+
+// Login endpoint
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+
+    console.log('Login request received for username:', username); // Debug log
+
+    // SQL query to check for user
+    const query = 'SELECT * FROM users WHERE username = ?';
+    db.get(query, [username], (err, user) => {
+        if (err) {
+            console.error('Database error:', err.message); // Debug log
+            return res.status(500).json({ error: 'Database error' });
+        }
+
+        if (user && bcrypt.compareSync(password, user.password)) {
+            console.log('Password matched for user:', username); // Debug log
+
+            if (user.otp_secret) {
+                console.log('2FA already enabled for user:', username); // Debug log
+                res.json({ requires2FA: true, userId: user.id });
+            } else {
+                console.log('2FA not enabled for user. Generating secret:', username); // Debug log
+                const secret = authenticator.generateSecret();
+                const otpauthURL = authenticator.keyuri(user.username, 'ResolveIT', secret);
+
+                const updateQuery = 'UPDATE users SET otp_secret = ? WHERE id = ?';
+                db.run(updateQuery, [secret, user.id], (updateErr) => {
+                    if (updateErr) {
+                        console.error('Failed to save 2FA secret:', updateErr.message); // Debug log
+                        return res.status(500).json({ error: 'Failed to save 2FA secret' });
+                    }
+
+                    QRCode.toDataURL(otpauthURL, (qrErr, qrCodeData) => {
+                        if (qrErr) {
+                            console.error('Failed to generate QR code:', qrErr.message); // Debug log
+                            return res.status(500).json({ error: 'Failed to generate QR code' });
+                        }
+
+                        console.log('2FA QR code generated for user:', username); // Debug log
+                        res.json({
+                            requires2FA: false,
+                            qrCodeData,
+                            otpauthURL,
+                            userId: user.id,
+                            message: 'Login successful, please set up 2FA.'
+                        });
+                    });
+                });
+            }
+        } else {
+            console.log('Invalid login credentials for user:', username); // Debug log
+            res.status(401).json({ error: 'Invalid username or password' });
         }
     });
 });
