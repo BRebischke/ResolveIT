@@ -35,3 +35,8 @@ Connected to the SQLite database.
 Lastly, go to a web browser, and in the address bar, search for:
 
 `localhost:5000`
+
+# Example Login:
+
+ben.rebischke@ics499.net
+Football7190%
