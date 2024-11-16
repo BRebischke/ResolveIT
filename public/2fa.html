@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Two-Factor Authentication</title>
+</head>
+<body>
+    <h2>Two-Factor Authentication</h2>
+    <div id="qrCodeContainer" style="display: none;">
+        <h3>Set Up 2FA</h3>
+        <p>Scan the QR code below with your authenticator app:</p>
+    </div>
+    <div id="verifyContainer" style="display: none;">
+        <h3>Verify 2FA Code</h3>
+        <form id="twoFaForm">
+            <input type="text" id="twoFaCode" placeholder="Enter 2FA Code" required>
+            <button type="submit">Verify</button>
+        </form>
+        <p id="errorMessage" style="color: red;"></p>
+    </div>
+    <script>
+        const userId = localStorage.getItem('userId'); // Retrieve user ID from storage
+
+        // Fetch QR code for setup or show verification form
+        fetch('http://localhost:5000/2fa/setup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.qrCodeData) {
+                // Show QR code for 2FA setup
+                document.getElementById('qrCodeContainer').style.display = 'block';
+                document.getElementById('qrCodeContainer').innerHTML = `<img src="${result.qrCodeData}" alt="QR Code">`;
+            } else {
+                // Show verification form
+                document.getElementById('verifyContainer').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+        // Handle 2FA verification
+        document.getElementById('twoFaForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const token = document.getElementById('twoFaCode').value;
+
+            fetch('http://localhost:5000/2fa/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, token })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message === '2FA validated successfully') {
+                    alert('2FA verification successful!');
+                    window.location.href = 'dashboard.html'; // Redirect after successful 2FA
+                } else {
+                    document.getElementById('errorMessage').innerText = 'Invalid 2FA code!';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
 
