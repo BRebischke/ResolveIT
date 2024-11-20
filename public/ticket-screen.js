@@ -49,7 +49,7 @@ function sortTickets(tickets) {
 
 // Fetch all tickets and store them globally
 function fetchTickets() {
-    fetch('http://localhost:5000/tickets')
+    fetch('http://localhost:5001/tickets')
         .then(response => response.json())
         .then(tickets => {
             console.log('Fetched Tickets:', tickets);  // Debug
@@ -63,7 +63,7 @@ function fetchTickets() {
 function fetchTicketsForUser(userId, status = null) {
     
 
-    fetch(`http://localhost:5000/tickets?assigned_user_id=${userId}`)
+    fetch(`http://localhost:5001/tickets?assigned_user_id=${userId}`)
         .then(response => {
             
             if (!response.ok) {

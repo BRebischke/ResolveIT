@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Ticket Data to Update:", ticketData);
 
             // Update the ticket by sending a PUT request
-            fetch(`http://localhost:5000/tickets/${ticketId}`, {
+            fetch(`http://localhost:5001/tickets/${ticketId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData)
@@ -73,7 +73,7 @@ function getTicketIdFromUrl() {
 }
 
 function fetchTicketDetails(ticketId) {
-    fetch(`http://localhost:5000/tickets/${ticketId}`)
+    fetch(`http://localhost:5001/tickets/${ticketId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch ticket details');
@@ -106,7 +106,7 @@ function fetchTicketDetails(ticketId) {
 // Fetch and display users in the user dropdown, pre-select the assigned user
 function fetchUsers(currentAssignedUserId) {
     console.log("Attempting to fetch users from API...");
-    fetch('http://localhost:5000/users')
+    fetch('http://localhost:5001/users')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch users');
@@ -180,7 +180,7 @@ function updateTicket(ticketId) {
     if (updatedStatus) updatedData.status = updatedStatus;
 
     // Send the PATCH request to the backend
-    fetch(`http://localhost:5000/tickets/${ticketId}`, {
+    fetch(`http://localhost:5001/tickets/${ticketId}`, {
         method: 'PATCH',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(updatedData),
