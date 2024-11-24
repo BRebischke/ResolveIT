@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             address: companyAddress
         };
 
-        fetch('http://localhost:5000/companies', {
+        fetch('http://localhost:5001/companies', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(companyData)
