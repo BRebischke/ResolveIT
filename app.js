@@ -5,6 +5,8 @@ const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const app = express();
+const { authenticator } = require('otplib');
+const QRCode = require('qrcode');
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -42,30 +44,117 @@ app.put('/tickets/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+
+// Generate a 2FA secret for the user
+app.post('/2fa/setup', (req, res) => {
+    const { userId } = req.body;
+
+    // Ensure the user exists
+    const query = 'SELECT * FROM users WHERE id = ?';
+    db.get(query, [userId], (err, user) => {
+        if (err || !user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Generate a new secret
+        const secret = authenticator.generateSecret();
+        const otpauthURL = authenticator.keyuri(user.username, 'ResolveIT', secret);
+
+        // Save the secret to the user's record
+        const updateQuery = 'UPDATE users SET otp_secret = ? WHERE id = ?';
+        db.run(updateQuery, [secret, userId], (updateErr) => {
+            if (updateErr) {
+                return res.status(500).json({ error: 'Failed to save 2FA secret' });
+            }
+
+            // Send the QR code data to the client
+            QRCode.toDataURL(otpauthURL, (qrErr, qrCodeData) => {
+                if (qrErr) {
+                    return res.status(500).json({ error: 'Failed to generate QR code' });
+                }
+                res.json({ qrCodeData, otpauthURL });
+            });
+        });
+    });
+});
+
+// Validate a 2FA token
+app.post('/2fa/validate', (req, res) => {
+    const { userId, token } = req.body;
+
+    // Retrieve the user's secret
+    const query = 'SELECT otp_secret FROM users WHERE id = ?';
+    db.get(query, [userId], (err, user) => {
+        if (err || !user || !user.otp_secret) {
+            return res.status(400).json({ error: 'Invalid request' });
+        }
+
+        // Validate the token
+        const isValid = authenticator.verify({ token, secret: user.otp_secret });
+        if (isValid) {
+            res.json({ message: '2FA validated successfully' });
+        } else {
+            res.status(401).json({ error: 'Invalid 2FA token' });
+        }
+    });
+});
+
 // Login endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
+
+
+    console.log('Login request received for username:', username); // Debug log
 
     // SQL query to check for user
     const query = 'SELECT * FROM users WHERE username = ?';
     db.get(query, [username], (err, user) => {
         if (err) {
+            console.error('Database error:', err.message); // Debug log
             return res.status(500).json({ error: 'Database error' });
         }
 
         if (user && bcrypt.compareSync(password, user.password)) {
-            // User found and password matched
-            const userId = user.id;
-            const role = user.role;
-            // Send userId to login to show technician assigned tickets alongside success message
-            res.json({ role, userId, message: 'Login successful' });
+            console.log('Password matched for user:', username); // Debug log
+
+            if (user.otp_secret) {
+                console.log('2FA already enabled for user:', username); // Debug log
+                res.json({ requires2FA: true, userId: user.id });
+            } else {
+                console.log('2FA not enabled for user. Generating secret:', username); // Debug log
+                const secret = authenticator.generateSecret();
+                const otpauthURL = authenticator.keyuri(user.username, 'ResolveIT', secret);
+
+                const updateQuery = 'UPDATE users SET otp_secret = ? WHERE id = ?';
+                db.run(updateQuery, [secret, user.id], (updateErr) => {
+                    if (updateErr) {
+                        console.error('Failed to save 2FA secret:', updateErr.message); // Debug log
+                        return res.status(500).json({ error: 'Failed to save 2FA secret' });
+                    }
+
+                    QRCode.toDataURL(otpauthURL, (qrErr, qrCodeData) => {
+                        if (qrErr) {
+                            console.error('Failed to generate QR code:', qrErr.message); // Debug log
+                            return res.status(500).json({ error: 'Failed to generate QR code' });
+                        }
+
+                        console.log('2FA QR code generated for user:', username); // Debug log
+                        res.json({
+                            requires2FA: false,
+                            qrCodeData,
+                            otpauthURL,
+                            userId: user.id,
+                            message: 'Login successful, please set up 2FA.'
+                        });
+                    });
+                });
+            }
         } else {
-            // Invalid credentials
+            console.log('Invalid login credentials for user:', username); // Debug log
             res.status(401).json({ error: 'Invalid username or password' });
         }
     });
 });
-
 app.post('/tickets', (req, res) => {
     const { summary, status, priority, customerId, companyId, assignedUserId } = req.body;
     const sql = `INSERT INTO tickets (summary, status, priority, customer_id, company_id, assigned_user_id)
