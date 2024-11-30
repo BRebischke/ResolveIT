@@ -156,10 +156,11 @@ app.post('/login', (req, res) => {
     });
 });
 app.post('/tickets', (req, res) => {
-    const { summary, status, priority, customerId, companyId, assignedUserId } = req.body;
-    const sql = `INSERT INTO tickets (summary, status, priority, customer_id, company_id, assigned_user_id)
-                 VALUES (?, ?, ?, ?, ?, ?)`;
-    const params = [summary, status, priority, customerId, companyId, assignedUserId];
+    const { summary, status, priority, customerId, companyId, assignedUserId, initialDescription } = req.body;
+    const sql = `INSERT INTO tickets (summary, status, priority, customer_id, company_id, assigned_user_id, initialDescription)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const params = [summary, status, priority, customerId, companyId, assignedUserId, initialDescription];
+
     db.run(sql, params, function(err) {
         if (err) {
             res.status(400).json({ error: err.message });
@@ -463,7 +464,7 @@ app.patch('/tickets/:id', (req, res) => {
 });
 
 // Start server
-const PORT = 5001;
+const PORT = 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
