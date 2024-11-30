@@ -1,12 +1,21 @@
+//const redis = require('redis'); these lines are to create email and sms text functionality
+//const twilio = require('twilio');
+//const sgMail = require('@sendgrid/mail');
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcrypt');
-const app = express();
-const { authenticator } = require('otplib');
+const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
+//const modal = require('modal');
+const { write } = require('fs');
+const app = express();
+//const twilioClient = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN) clients for email and sms
+//const redisClient = redis.createClient();
+//sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -21,6 +30,8 @@ const db = new sqlite3.Database('./ticketing_system.db', (err) => {
         console.log('Connected to the SQLite database.');
     }
 });
+
+
 
 app.put('/tickets/:id', (req, res) => {
     const ticketId = req.params.id;
@@ -45,116 +56,60 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Generate a 2FA secret for the user
-app.post('/2fa/setup', (req, res) => {
-    const { userId } = req.body;
-
-    // Ensure the user exists
-    const query = 'SELECT * FROM users WHERE id = ?';
-    db.get(query, [userId], (err, user) => {
-        if (err || !user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        // Generate a new secret
-        const secret = authenticator.generateSecret();
-        const otpauthURL = authenticator.keyuri(user.username, 'ResolveIT', secret);
-
-        // Save the secret to the user's record
-        const updateQuery = 'UPDATE users SET otp_secret = ? WHERE id = ?';
-        db.run(updateQuery, [secret, userId], (updateErr) => {
-            if (updateErr) {
-                return res.status(500).json({ error: 'Failed to save 2FA secret' });
-            }
-
-            // Send the QR code data to the client
-            QRCode.toDataURL(otpauthURL, (qrErr, qrCodeData) => {
-                if (qrErr) {
-                    return res.status(500).json({ error: 'Failed to generate QR code' });
-                }
-                res.json({ qrCodeData, otpauthURL });
-            });
-        });
-    });
-});
-
-// Validate a 2FA token
-app.post('/2fa/validate', (req, res) => {
-    const { userId, token } = req.body;
-
-    // Retrieve the user's secret
-    const query = 'SELECT otp_secret FROM users WHERE id = ?';
-    db.get(query, [userId], (err, user) => {
-        if (err || !user || !user.otp_secret) {
-            return res.status(400).json({ error: 'Invalid request' });
-        }
-
-        // Validate the token
-        const isValid = authenticator.verify({ token, secret: user.otp_secret });
-        if (isValid) {
-            res.json({ message: '2FA validated successfully' });
-        } else {
-            res.status(401).json({ error: 'Invalid 2FA token' });
-        }
-    });
-});
-
 // Login endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-
-
-    console.log('Login request received for username:', username); // Debug log
-
+    console.log("received username and password");
     // SQL query to check for user
     const query = 'SELECT * FROM users WHERE username = ?';
     db.get(query, [username], (err, user) => {
         if (err) {
-            console.error('Database error:', err.message); // Debug log
             return res.status(500).json({ error: 'Database error' });
         }
 
         if (user && bcrypt.compareSync(password, user.password)) {
-            console.log('Password matched for user:', username); // Debug log
-
-            if (user.otp_secret) {
-                console.log('2FA already enabled for user:', username); // Debug log
-                res.json({ requires2FA: true, userId: user.id });
-            } else {
-                console.log('2FA not enabled for user. Generating secret:', username); // Debug log
-                const secret = authenticator.generateSecret();
-                const otpauthURL = authenticator.keyuri(user.username, 'ResolveIT', secret);
-
-                const updateQuery = 'UPDATE users SET otp_secret = ? WHERE id = ?';
-                db.run(updateQuery, [secret, user.id], (updateErr) => {
-                    if (updateErr) {
-                        console.error('Failed to save 2FA secret:', updateErr.message); // Debug log
-                        return res.status(500).json({ error: 'Failed to save 2FA secret' });
-                    }
-
-                    QRCode.toDataURL(otpauthURL, (qrErr, qrCodeData) => {
-                        if (qrErr) {
-                            console.error('Failed to generate QR code:', qrErr.message); // Debug log
-                            return res.status(500).json({ error: 'Failed to generate QR code' });
-                        }
-
-                        console.log('2FA QR code generated for user:', username); // Debug log
-                        res.json({
-                            requires2FA: false,
-                            qrCodeData,
-                            otpauthURL,
-                            userId: user.id,
-                            message: 'Login successful, please set up 2FA.'
-                        });
-                    });
-                });
+            // User found and password matched
+            const userId = user.id;
+            const role = user.role;
+            console.log("matching username and password");
+            if(user.enable2fa){
+                const qr_code = speakeasy.otpauthURL({secret: user.twoFactorSecret, label: username, encoding: 'base32'});
+                //console.log(qr_code);
+                QRCode.toDataURL(qr_code, function(err, qrCode){
+                    console.log("yo");
+                    res.json({role, userId, qrCode, message: 'Redirecting to 2FA'});
+                })
             }
+            else{
+                res.json({ role, userId, message: 'Login successful' });
+            }                      // Send userId to login to show technician assigned tickets alongside success message
         } else {
-            console.log('Invalid login credentials for user:', username); // Debug log
+            // Invalid credentials
             res.status(401).json({ error: 'Invalid username or password' });
         }
     });
 });
+
+app.post('/two-factor-verify', (req, res) => {
+    //console.log("looks like we made it");
+    const { token, userId } = req.body;
+    const checkUserQuery = 'SELECT * FROM users WHERE id = ?';
+    //console.log(token);
+    db.get(checkUserQuery, [userId], (err, user) =>{
+        const verified = speakeasy.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token
+        });
+        if (!verified){
+            //console.log("whoops")
+            return res.status(401).json({message: "Invalid 2FA token"});
+        }
+        //console.log("got it!");
+        res.json({message: "2FA verified successfully"});
+    })
+})
+
 app.post('/tickets', (req, res) => {
     const { summary, status, priority, customerId, companyId, assignedUserId } = req.body;
     const sql = `INSERT INTO tickets (summary, status, priority, customer_id, company_id, assigned_user_id)
@@ -173,7 +128,7 @@ app.post('/tickets', (req, res) => {
 //add new user to database
 app.post('/register', (req, res) => {
     const { username, password } = req.body;
-
+    
     if (!username || !password) {
         return res.status(400).json({ error: 'Username and password are required' });
     }
@@ -358,11 +313,18 @@ app.post('/customers', (req, res) => {
 
 // Add or update a system user 
 app.post('/users', (req, res) => {
-    const { username, password, role } = req.body;
-
+    const { username, password, role, enable2fa} = req.body;
+    console.log(enable2fa);
     // First, check if the user already exists in the database
     const checkUserSql = 'SELECT * FROM users WHERE username = ?';
     
+    function enableTwoFactor(username) {
+        const temp_secret = speakeasy.generateSecret();
+        db.run('UPDATE users SET enable2fa = ?, twoFactorSecret = ?, WHERE username = ?', [1, temp_secret.base32, username]);
+        res.status(200).send({ message: "2FA enabled", temp_secret: secret.otpauth_url });
+    }
+    
+
     db.get(checkUserSql, [username], (err, row) => {
         if (err) {
             return res.status(400).json({ error: err.message });
@@ -382,8 +344,17 @@ app.post('/users', (req, res) => {
 
             // If a new role is provided, update the role
             if (role) {
-                updateSql += 'role = ? ';
+                updateSql += 'role = ?, ';
                 params.push(role);
+            }
+
+            //enable 2fa
+            if (enable2fa) {
+                updateSql += 'enable2fa = ?, ';
+                updateSql += 'twoFactorSecret = ?'
+                const secret = speakeasy.generateSecret();
+                params.push(enable2fa);
+                params.push(secret.base32);
             }
 
             updateSql += 'WHERE username = ?';
@@ -404,18 +375,21 @@ app.post('/users', (req, res) => {
         } else {
             // If user doesn't exist, create a new user
             const hashedPassword = bcrypt.hashSync(password, 10);
-            const insertSql = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
+            const insertSql = 'INSERT INTO users (username, password, role, enable2fa) VALUES (?, ?, ?, ?)';
 
-            db.run(insertSql, [username, hashedPassword, role], function(err) {
-                if (err) {
-                    return res.status(400).json({ error: err.message });
+            db.run(insertSql, [username, hashedPassword, role, enable2fa], function(err) {
+                if (enable2fa){ enableTwoFactor(username); }
+                else{
+                    if (err) {
+                        return res.status(400).json({ error: err.message });
+                    }
+                    res.json({
+                        message: 'System user created successfully',
+                        userId: this.lastID
+                    });
                 }
-
-                res.json({
-                    message: 'System user created successfully',
-                    userId: this.lastID
-                });
             });
+            
         }
     });
 });
@@ -463,7 +437,7 @@ app.patch('/tickets/:id', (req, res) => {
 });
 
 // Start server
-const PORT = 5001;
+const PORT = 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
