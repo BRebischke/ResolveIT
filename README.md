@@ -40,3 +40,6 @@ Lastly, go to a web browser, and in the address bar, search for:
 
 ben.rebischke@ics499.net
 Football7190%
+
+To enable two factor authentication, download Google authenticator app on your smartphone or tablet. Scan and save account for future use.
+Enter in six digit code within alloted time on downloaded app.
