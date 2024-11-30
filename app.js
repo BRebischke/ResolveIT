@@ -1,4 +1,4 @@
-//const redis = require('redis'); these lines are to create email and sms text functionality
+//const redis = require('redis');
 //const twilio = require('twilio');
 //const sgMail = require('@sendgrid/mail');
 const express = require('express');
@@ -12,7 +12,7 @@ const QRCode = require('qrcode');
 //const modal = require('modal');
 const { write } = require('fs');
 const app = express();
-//const twilioClient = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN) clients for email and sms
+//const twilioClient = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 //const redisClient = redis.createClient();
 //sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
@@ -313,25 +313,20 @@ app.post('/customers', (req, res) => {
 
 // Add or update a system user 
 app.post('/users', (req, res) => {
-    const { username, password, role, enable2fa} = req.body;
-    console.log(enable2fa);
+    console.log("into endpoint");
+    const { username, password, role, enable2fa } = req.body;
     // First, check if the user already exists in the database
     const checkUserSql = 'SELECT * FROM users WHERE username = ?';
     
-    function enableTwoFactor(username) {
-        const temp_secret = speakeasy.generateSecret();
-        db.run('UPDATE users SET enable2fa = ?, twoFactorSecret = ?, WHERE username = ?', [1, temp_secret.base32, username]);
-        res.status(200).send({ message: "2FA enabled", temp_secret: secret.otpauth_url });
-    }
-    
-
     db.get(checkUserSql, [username], (err, row) => {
+        console.log("checking user db");
         if (err) {
             return res.status(400).json({ error: err.message });
         }
 
         // If user exists, update the password or role
         if (row) {
+            console.log("user exists");
             let updateSql = 'UPDATE users SET ';
             let params = [];
 
@@ -373,22 +368,36 @@ app.post('/users', (req, res) => {
                 });
             });
         } else {
+            console.log("creating new user");
             // If user doesn't exist, create a new user
             const hashedPassword = bcrypt.hashSync(password, 10);
-            const insertSql = 'INSERT INTO users (username, password, role, enable2fa) VALUES (?, ?, ?, ?)';
-
-            db.run(insertSql, [username, hashedPassword, role, enable2fa], function(err) {
-                if (enable2fa){ enableTwoFactor(username); }
-                else{
+            const twoFactorSecret = speakeasy.generateSecret();
+            if(enable2fa==0){
+                const insertSql = 'INSERT INTO users (username, password, role, enable2fa) VALUES (?, ?, ?, ?)';
+                db.run(insertSql, [username, hashedPassword, role, enable2fa], function(err) {
                     if (err) {
                         return res.status(400).json({ error: err.message });
-                    }
+                    }       
+                    
                     res.json({
                         message: 'System user created successfully',
                         userId: this.lastID
                     });
-                }
-            });
+                });
+            }
+            else{
+                const insertSql = 'INSERT INTO users (username, password, role, enable2fa, twoFactorSecret) VALUES (?, ?, ?, ?, ?)';
+                db.run(insertSql, [username, hashedPassword, role, enable2fa, twoFactorSecret.base32], function(err) {
+                    if (err) {
+                        return res.status(400).json({ error: err.message });
+                    }       
+                    
+                    res.json({
+                    message: 'System user created successfully',
+                    userId: this.lastID
+                    });
+                });
+            }
             
         }
     });
