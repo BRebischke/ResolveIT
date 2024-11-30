@@ -23,7 +23,7 @@ document.getElementById('registerForm').addEventListener('submit', function (e) 
     
         const registerData = { username, password };
 
-        fetch('http://localhost:5001/register', {
+        fetch('http://localhost:5000/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(registerData)
