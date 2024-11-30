@@ -49,7 +49,7 @@ function sortTickets(tickets) {
 
 // Fetch all tickets and store them globally
 function fetchTickets() {
-    fetch('http://localhost:5001/tickets')
+    fetch('http://localhost:5000/tickets')
         .then(response => response.json())
         .then(tickets => {
             console.log('Fetched Tickets:', tickets);  // Debug

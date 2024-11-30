@@ -52,6 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const priority = document.getElementById('ticketPriority').value;
             const status = document.getElementById('ticketStatus').value;
             const assignedUserId = document.getElementById('userSelect').value;
+            const initialDescription = document.getElementById('initialDescription').value;
+
             
             if (!companyId || !customerId || !assignedUserId) {
                 displayError('Please select a company, customer, and user');
@@ -64,10 +66,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 priority,
                 customerId,
                 companyId,
-                assignedUserId
+                assignedUserId,
+                initialDescription
             };
             
-            fetch('http://localhost:5001/tickets', {
+            fetch('http://localhost:5000/tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData)
@@ -113,7 +116,7 @@ function clearAllFields() {
 
 // Fetch and display companies in the company dropdown
 function fetchCompanies() {
-    fetch('http://localhost:5001/companies')
+    fetch('http://localhost:5000/companies')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch companies');
@@ -140,7 +143,7 @@ function fetchCompanies() {
 // Fetch and display users in the user dropdown
 function fetchUsers() {
     console.log("Attempting to fetch users from API...");
-    fetch('http://localhost:5001/users')
+    fetch('http://localhost:5000/users')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch users');
@@ -171,7 +174,7 @@ function fetchUsers() {
 
 // Fetch and populate the customer dropdown for the selected company
 function fetchCustomers(companyId) {
-    fetch(`http://localhost:5001/companies/${companyId}/customers`)
+    fetch(`http://localhost:5000/companies/${companyId}/customers`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch customers');

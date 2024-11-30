@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             email: userEmail
         };
 
-        fetch('http://localhost:5001/customers', {
+        fetch('http://localhost:5000/customers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function fetchCompanies() {
-    fetch('http://localhost:5001/companies')
+    fetch('http://localhost:5000/companies')
         .then(response => response.json())
         .then(companies => {
             const companySelect = document.getElementById('companySelect');

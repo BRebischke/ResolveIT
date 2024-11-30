@@ -26,15 +26,9 @@
                 <select id="customerSelect" required>
                     <option value="">Select Contact</option>
                 </select>
+            </div>
 
-                <!-- Use a readonly input instead of a select, so it's not editable -->
-                <input type="text" id="companySelect" readonly placeholder="Company Name">
-            </div>
-            <div class="form-group">
-                <label for="customerSelect">Contact:</label>
-                <!-- Use a readonly input instead of a select, so it's not editable -->
-                <input type="text" id="customerSelect" readonly placeholder="Contact Name">
-            </div>
+
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" placeholder="Contact Email" readonly>
@@ -48,7 +42,7 @@
                 <h3>Ticket Details</h3>
                 <div class="form-group">
                     <label for="ticketSummary">Summary:</label>
-                    <input type="text" id="ticketSummary" placeholder="Enter ticket summary" required>
+                    <input type="text" id="ticketSummary" placeholder="Change Ticket Summary..." required>
                 </div>
 
                 <div class="form-group">
@@ -82,10 +76,10 @@
             </div>
 
             <div class="form-section">
-                <h3>Initial Description</h3>
+                <h3>Add Note</h3>
                 <div class="form-group">
                     <label for="initialDescription">Notes:</label>
-                    <textarea id="initialDescription" placeholder="Enter initial description..."></textarea>
+                    <textarea id="initialDescription" placeholder="Add Notes Here..."></textarea>
                 </div>
             </div>
 

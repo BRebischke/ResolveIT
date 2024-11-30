@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Make the POST request to create the new system user
-        fetch('http://localhost:5001/users', {
+        fetch('http://localhost:5000/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
