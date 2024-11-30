@@ -13,6 +13,10 @@ Run the following commands to install Node.js and the required packages:
 
 `npm install express sqlite3 body-parser cors bcrypt`
 
+`npm install otplib`
+
+`npm install qrcode`
+
 # 2. Download the Zip File for all the code from the GitHub Repo, and then extract the contents to a dedicated spot.
 ![image](https://github.com/user-attachments/assets/a96aa9ea-5f0c-4807-a559-f668a22ad025)
 
