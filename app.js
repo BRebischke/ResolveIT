@@ -1,6 +1,3 @@
-//const redis = require('redis');
-//const twilio = require('twilio');
-//const sgMail = require('@sendgrid/mail');
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
@@ -9,12 +6,8 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
-//const modal = require('modal');
 const { write } = require('fs');
 const app = express();
-//const twilioClient = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-//const redisClient = redis.createClient();
-//sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -59,7 +52,6 @@ app.get('/', (req, res) => {
 // Login endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    console.log("received username and password");
     // SQL query to check for user
     const query = 'SELECT * FROM users WHERE username = ?';
     db.get(query, [username], (err, user) => {
@@ -71,12 +63,10 @@ app.post('/login', (req, res) => {
             // User found and password matched
             const userId = user.id;
             const role = user.role;
-            console.log("matching username and password");
+            //checking for 2fa enabled and passing qr code
             if(user.enable2fa){
                 const qr_code = speakeasy.otpauthURL({secret: user.twoFactorSecret, label: username, encoding: 'base32'});
-                //console.log(qr_code);
                 QRCode.toDataURL(qr_code, function(err, qrCode){
-                    console.log("yo");
                     res.json({role, userId, qrCode, message: 'Redirecting to 2FA'});
                 })
             }
@@ -91,10 +81,8 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/two-factor-verify', (req, res) => {
-    //console.log("looks like we made it");
     const { token, userId } = req.body;
     const checkUserQuery = 'SELECT * FROM users WHERE id = ?';
-    //console.log(token);
     db.get(checkUserQuery, [userId], (err, user) =>{
         const verified = speakeasy.totp.verify({
             secret: user.twoFactorSecret,
@@ -102,10 +90,8 @@ app.post('/two-factor-verify', (req, res) => {
             token
         });
         if (!verified){
-            //console.log("whoops")
             return res.status(401).json({message: "Invalid 2FA token"});
         }
-        //console.log("got it!");
         res.json({message: "2FA verified successfully"});
     })
 })
@@ -313,20 +299,17 @@ app.post('/customers', (req, res) => {
 
 // Add or update a system user 
 app.post('/users', (req, res) => {
-    console.log("into endpoint");
     const { username, password, role, enable2fa } = req.body;
     // First, check if the user already exists in the database
     const checkUserSql = 'SELECT * FROM users WHERE username = ?';
     
     db.get(checkUserSql, [username], (err, row) => {
-        console.log("checking user db");
         if (err) {
             return res.status(400).json({ error: err.message });
         }
 
         // If user exists, update the password or role
         if (row) {
-            console.log("user exists");
             let updateSql = 'UPDATE users SET ';
             let params = [];
 
@@ -368,7 +351,6 @@ app.post('/users', (req, res) => {
                 });
             });
         } else {
-            console.log("creating new user");
             // If user doesn't exist, create a new user
             const hashedPassword = bcrypt.hashSync(password, 10);
             const twoFactorSecret = speakeasy.generateSecret();
