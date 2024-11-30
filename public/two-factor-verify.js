@@ -1,3 +1,4 @@
+//loading qr code with page
 window.addEventListener('load', ()=> {
     const qrCodeData = sessionStorage.getItem('qrCode');
     const qrCodeImage = document.getElementById('qrCode');
@@ -10,9 +11,9 @@ window.addEventListener('load', ()=> {
 })
 document.getElementById('verifyForm').addEventListener('submit', function (e) {
     e.preventDefault();
+//preventing page from opening the default way
 
-
-
+//creating passed token for verification
 const token = document.getElementById('code').value;
 const userId = sessionStorage.getItem('userId');
 const tokenData = { token, userId };
@@ -32,6 +33,7 @@ fetch('http://localhost:5000/two-factor-verify',{
     if(result.message === "Invalid 2FA token"){
         window.location.href = 'http://localhost:5000'; //redirect
     }
+    //redirect to ticket screen after successful verification
     if(result.message === "2FA verified successfully") {
         sessionStorage.removeItem('qrCode');
         window.location.href = 'ticketScreen.html';
