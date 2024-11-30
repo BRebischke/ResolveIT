@@ -1,12 +1,12 @@
  document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('systemUserForm').addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent the form from submitting the default way
-        console.log("attempting data creation");
         const systemUserName = document.getElementById('systemUserName').value;
         const systemPassword = document.getElementById('systemPassword').value;
         const systemUserRole = document.getElementById('systemUserRole').value;
         const isChecked = document.getElementById("enable2fa").checked;
         
+        //checking two-factor authorization
         let enable2fa = 0;
         if(isChecked){enable2fa=1;}
         
