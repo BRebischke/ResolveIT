@@ -63,7 +63,7 @@ app.post('/login', (req, res) => {
             // User found and password matched
             const userId = user.id;
             const role = user.role;
-            //checking for 2fa enabled and passing qr code
+            //checking for 2fa enabled and passing qr code if so
             if(user.enable2fa){
                 const qr_code = speakeasy.otpauthURL({secret: user.twoFactorSecret, label: username, encoding: 'base32'});
                 QRCode.toDataURL(qr_code, function(err, qrCode){
@@ -79,10 +79,11 @@ app.post('/login', (req, res) => {
         }
     });
 });
-
+//two-factor verification endpoint
 app.post('/two-factor-verify', (req, res) => {
     const { token, userId } = req.body;
     const checkUserQuery = 'SELECT * FROM users WHERE id = ?';
+    //checks submitted code against stored secret
     db.get(checkUserQuery, [userId], (err, user) =>{
         const verified = speakeasy.totp.verify({
             secret: user.twoFactorSecret,
@@ -326,7 +327,7 @@ app.post('/users', (req, res) => {
                 params.push(role);
             }
 
-            //enable 2fa
+            //enable 2fa update if box is checked
             if (enable2fa) {
                 updateSql += 'enable2fa = ?, ';
                 updateSql += 'twoFactorSecret = ?'
@@ -354,6 +355,7 @@ app.post('/users', (req, res) => {
             // If user doesn't exist, create a new user
             const hashedPassword = bcrypt.hashSync(password, 10);
             const twoFactorSecret = speakeasy.generateSecret();
+            //entry for users without 2fa
             if(enable2fa==0){
                 const insertSql = 'INSERT INTO users (username, password, role, enable2fa) VALUES (?, ?, ?, ?)';
                 db.run(insertSql, [username, hashedPassword, role, enable2fa], function(err) {
@@ -367,6 +369,7 @@ app.post('/users', (req, res) => {
                     });
                 });
             }
+            //entry for users with 2fa with secret code added to db
             else{
                 const insertSql = 'INSERT INTO users (username, password, role, enable2fa, twoFactorSecret) VALUES (?, ?, ?, ?, ?)';
                 db.run(insertSql, [username, hashedPassword, role, enable2fa, twoFactorSecret.base32], function(err) {
