@@ -13,7 +13,7 @@ Run the following commands to install Node.js and the required packages:
 
 `npm install express sqlite3 body-parser cors bcrypt`
 
-`npm install otplib`
+`npm install speakeasy`
 
 `npm install qrcode`
 
