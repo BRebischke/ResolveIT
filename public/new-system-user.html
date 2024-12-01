@@ -16,7 +16,7 @@
             </div>
             <div class="form-group">
                 <label for="systemPassword">Password:</label>
-                <input type="password" id="systemPassword" placeholder="Enter password" name="password" pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$" minlength="5" maxlength="20" required title="Password must be between 5 and 20 characters and contain both letters and numbers">
+                <input type="password" id="systemPassword" placeholder="Enter password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,20}" required title="Password must be between 5 and 20 characters and contain both letters and numbers">
                 
             </div>
             <div class="form-group">
@@ -25,6 +25,10 @@
                     <option value="Technician">Technician</option>
                     <option value="Admin">Admin</option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="enable2fa">Enable Two-Factor Authentication</label>
+                <input type="checkbox" id="enable2fa" name="enable2fa">
             </div>
             <button type="submit" class="create-entry-btn">Create System User</button>
         </form>
