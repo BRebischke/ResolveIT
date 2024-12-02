@@ -44,3 +44,4 @@ Lastly, go to a web browser, and in the address bar, search for:
 
 ben.rebischke@ics499.net
 Football7190%
+Download Google Authenticator app on a smartphone or tablet to read QR code prompts and generate a code.
